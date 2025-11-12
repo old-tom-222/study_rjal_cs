@@ -1,6 +1,8 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using CSproject.UI.Forms;
+
 
 namespace CSproject.UI.Forms
 {
@@ -69,7 +71,16 @@ namespace CSproject.UI.Forms
 
         private void BtnMenuReportsClick(object sender, EventArgs e)
         {
-            ShowPlaceholder("报表分析");
+            // 加载报表分析界面到内容面板
+            this.panelContent.Controls.Clear();
+            var reportsForm = new ReportsMainForm
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+            this.panelContent.Controls.Add(reportsForm);
+            reportsForm.Show();
         }
     }
 }
