@@ -54,33 +54,7 @@ namespace CSproject.UI.Forms
             gridInventory.DataSource = list;
         }
 
-        private void BtnAdjustClick(object sender, EventArgs e)
-        {
-            if (!int.TryParse(txtAdjProductId.Text, out var productId))
-            {
-                MessageBox.Show("请输入有效的商品ID", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtAdjProductId.Focus();
-                return;
-            }
-            if (!int.TryParse(txtAdjWarehouseId.Text, out var warehouseId))
-            {
-                MessageBox.Show("请输入有效的仓库ID", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtAdjWarehouseId.Focus();
-                return;
-            }
-            if (!int.TryParse(txtDeltaQty.Text, out var deltaQty))
-            {
-                MessageBox.Show("请输入有效的数量变更（整数）", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtDeltaQty.Focus();
-                return;
-            }
-            var type = string.IsNullOrWhiteSpace(txtAdjType.Text) ? "adjust" : txtAdjType.Text.Trim();
-            var reference = string.IsNullOrWhiteSpace(txtAdjRef.Text) ? null : txtAdjRef.Text.Trim();
-            var remark = string.IsNullOrWhiteSpace(txtAdjRemark.Text) ? null : txtAdjRemark.Text.Trim();
 
-            var item = _service.AdjustInventory(productId, warehouseId, deltaQty, type, reference, remark);
-            MessageBox.Show($"调整成功，当前库存：{item?.Quantity ?? 0}", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
 
         private void BtnTxnQueryClick(object sender, EventArgs e)
         {

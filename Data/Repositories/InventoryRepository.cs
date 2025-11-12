@@ -84,43 +84,7 @@ namespace CSproject.Data.Repositories
             return item;
         }
 
-        // 调整库存：deltaQty 可正可负，使用 MySQL upsert
-        public int AdjustInventory(int productId, int warehouseId, int deltaQty)
-        {
-            string sql = @"INSERT INTO inventory(product_id, warehouse_id, quantity)
-                           VALUES(@productId, @warehouseId, @deltaQty)
-                           ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity), last_updated = CURRENT_TIMESTAMP";
-            using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
-            using (var cmd = new MySqlCommand(sql, conn))
-            {
-                conn.Open();
-                cmd.Parameters.AddWithValue("@productId", productId);
-                cmd.Parameters.AddWithValue("@warehouseId", warehouseId);
-                cmd.Parameters.AddWithValue("@deltaQty", deltaQty);
-                cmd.ExecuteNonQuery();
-            }
-            // 返回调整后的最新数量
-            var current = GetInventory(productId, warehouseId);
-            return current?.Quantity ?? 0;
-        }
 
-        // 设置库存到指定数量（覆盖）
-        public int SetInventory(int productId, int warehouseId, int newQty)
-        {
-            string sql = @"INSERT INTO inventory(product_id, warehouse_id, quantity)
-                           VALUES(@productId, @warehouseId, @newQty)
-                           ON DUPLICATE KEY UPDATE quantity = @newQty, last_updated = CURRENT_TIMESTAMP";
-            using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
-            using (var cmd = new MySqlCommand(sql, conn))
-            {
-                conn.Open();
-                cmd.Parameters.AddWithValue("@productId", productId);
-                cmd.Parameters.AddWithValue("@warehouseId", warehouseId);
-                cmd.Parameters.AddWithValue("@newQty", newQty);
-                cmd.ExecuteNonQuery();
-            }
-            return newQty;
-        }
 
         // 库存预警：数量低于安全库存
         public List<InventoryItem> GetLowStockWarnings()
