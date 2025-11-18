@@ -105,7 +105,7 @@ namespace CSproject.UI.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"加载仪表板数据失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format("加载仪表板数据失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -147,12 +147,12 @@ namespace CSproject.UI.Forms
         {
             if (changePercent > 0)
             {
-                label.Text = $"+{changePercent:F1}%";
+                label.Text = string.Format("+{0:F1}%", changePercent);
                 label.ForeColor = Color.Green;
             }
             else if (changePercent < 0)
             {
-                label.Text = $"{changePercent:F1}%";
+                label.Text = string.Format("{0:F1}%", changePercent);
                 label.ForeColor = Color.Red;
             }
             else
@@ -224,20 +224,20 @@ namespace CSproject.UI.Forms
                 {
                     saveFileDialog.Filter = "Excel文件 (*.xlsx)|*.xlsx|PDF文件 (*.pdf)|*.pdf";
                     saveFileDialog.Title = "导出仪表板";
-                    saveFileDialog.FileName = $"经营仪表板_{DateTime.Now:yyyyMMdd_HHmmss}";
+                    saveFileDialog.FileName = string.Format("经营仪表板_{0:yyyyMMdd_HHmmss}", DateTime.Now);
                     
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         // 这里可以添加实际的导出逻辑
                         // 由于是框架搭建，暂时只显示消息
-                        MessageBox.Show($"仪表板已导出到: {saveFileDialog.FileName}", "导出成功", 
+                        MessageBox.Show(string.Format("仪表板已导出到: {0}", saveFileDialog.FileName), "导出成功", 
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"导出仪表板失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format("导出仪表板失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -260,7 +260,7 @@ namespace CSproject.UI.Forms
                 SaveFileDialog saveFileDialog = new SaveFileDialog();
                 saveFileDialog.Filter = "Excel文件 (*.xlsx)|*.xlsx|CSV文件 (*.csv)|*.csv|PDF文件 (*.pdf)|*.pdf";
                 saveFileDialog.Title = "导出仪表板数据";
-                saveFileDialog.FileName = $"仪表板数据_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}";
+                saveFileDialog.FileName = string.Format("仪表板数据_{0}", DateTime.Now.ToString("yyyyMMdd_HHmmss"));
 
                 // 显示对话框并检查用户是否点击了确定按钮
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
@@ -295,7 +295,7 @@ namespace CSproject.UI.Forms
             catch (Exception ex)
             {
                 // 显示错误消息
-                MessageBox.Show($"导出过程中发生错误: {ex.Message}", "导出错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format("导出过程中发生错误: {0}", ex.Message), "导出错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

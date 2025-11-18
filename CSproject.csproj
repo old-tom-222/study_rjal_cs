@@ -181,6 +181,16 @@
     <Compile Include="Business\Services\SalesReportService.cs" />
     <Compile Include="Business\Services\PurchaseReportService.cs" />
     <Compile Include="Business\Services\BusinessDashboardService.cs" />
+    <Compile Include="Data\Repositories\PurchaseOrderRepository.cs" />
+    <Compile Include="UI\Forms\OrderCreationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Forms\PurchaseOrderListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Forms\OrderDetailsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

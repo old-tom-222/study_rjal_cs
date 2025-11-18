@@ -74,9 +74,72 @@ namespace CSproject.Business.Services
         /// </summary>
         public List<InventoryReportModel> GetInventoryTurnoverReport(DateTime startDate, DateTime endDate, int? warehouseId = null)
         {
-            // 这里可以实现更复杂的库存周转率计算逻辑
-            // 目前返回库存概览，实际应用中需要计算周转次数、周转天数等
-            return GetInventoryOverview(warehouseId);
+            // 获取库存概览数据作为基础
+            var inventoryOverview = GetInventoryOverview(warehouseId);
+            var result = new List<InventoryReportModel>();
+            
+            // 获取指定时间段内的所有库存交易
+            var allTransactions = _transactionRepo.GetTransactions(null, warehouseId, startDate, endDate);
+            
+            // 获取时间段之前的所有库存交易（用于计算期初库存）
+            var beforeTransactions = _transactionRepo.GetTransactions(null, warehouseId, null, startDate.AddDays(-1));
+            
+            // 对每个库存项计算周转率相关数据
+            foreach (var item in inventoryOverview)
+            {
+                var turnoverItem = new InventoryReportModel
+                {
+                    ProductId = item.ProductId,
+                    ProductSku = item.ProductSku,
+                    ProductName = item.ProductName,
+                    WarehouseId = item.WarehouseId,
+                    WarehouseName = item.WarehouseName,
+                    CurrentQuantity = item.CurrentQuantity,
+                    SafeStock = item.SafeStock,
+                    ReorderQuantity = item.ReorderQuantity,
+                    AverageCost = item.AverageCost,
+                    TotalValue = item.TotalValue
+                };
+                
+                // 计算期初库存：当前库存 - 时间段内的净变动
+                int periodNetChange = allTransactions
+                    .Where(t => t.ProductId == item.ProductId && t.WarehouseId == item.WarehouseId)
+                    .Sum(t => t.ChangeQty);
+                turnoverItem.OpeningStock = item.CurrentQuantity - periodNetChange;
+                
+                // 期末库存即为当前库存
+                turnoverItem.ClosingStock = item.CurrentQuantity;
+                
+                // 计算平均库存
+                turnoverItem.AverageStock = (turnoverItem.OpeningStock + turnoverItem.ClosingStock) / 2m;
+                
+                // 计算销售数量（筛选销售类型的交易，取绝对值之和）
+                turnoverItem.SalesQuantity = Math.Abs(allTransactions
+                    .Where(t => t.ProductId == item.ProductId && t.WarehouseId == item.WarehouseId && t.Type == "sale")
+                    .Sum(t => t.ChangeQty));
+                
+                // 计算周转率
+                if (turnoverItem.AverageStock > 0)
+                {
+                    turnoverItem.TurnoverRate = turnoverItem.SalesQuantity / turnoverItem.AverageStock;
+                }
+                else
+                {
+                    turnoverItem.TurnoverRate = 0;
+                }
+                
+                result.Add(turnoverItem);
+            }
+            
+            return result;
+        }
+        
+        /// <summary>
+        /// 获取库存流水报表
+        /// </summary>
+        public List<InventoryTransaction> GetInventoryTransactions(int? productId = null, int? warehouseId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            return _transactionRepo.GetTransactions(productId, warehouseId, startDate, endDate);
         }
     }
 }

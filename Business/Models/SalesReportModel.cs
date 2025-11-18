@@ -15,7 +15,10 @@ namespace CSproject.Business.Models
         public string Category { get; set; }
         public string Supplier { get; set; }
         public decimal ProfitMargin { get; set; }
-        public decimal TotalProfit => TotalRevenue * ProfitMargin / 100;
+        public decimal TotalProfit
+        {
+            get { return TotalRevenue * ProfitMargin / 100; }
+        }
     }
 
     public class DailySalesReportModel

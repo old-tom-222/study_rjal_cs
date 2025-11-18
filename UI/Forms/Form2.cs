@@ -2,12 +2,15 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using CSproject.UI.Forms;
+using CSproject.Data.Repositories;
 
 
 namespace CSproject.UI.Forms
 {
     public partial class Form2 : Form
     {
+        private PurchaseOrderListForm _purchaseOrderListForm;
+
         public Form2()
         {
             InitializeComponent();
@@ -37,7 +40,24 @@ namespace CSproject.UI.Forms
 
         private void BtnMenuPurchaseClick(object sender, EventArgs e)
         {
-            ShowPlaceholder("采购管理");
+            // 加载采购订单管理界面到内容面板
+            this.panelContent.Controls.Clear();
+            _purchaseOrderListForm = new PurchaseOrderListForm
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+            this.panelContent.Controls.Add(_purchaseOrderListForm);
+            _purchaseOrderListForm.Show();
+        }
+
+        public void LoadPurchaseOrders()
+        {
+            if (_purchaseOrderListForm != null)
+            {
+                _purchaseOrderListForm.LoadPurchaseOrders();
+            }
         }
 
         private void BtnMenuSalesClick(object sender, EventArgs e)

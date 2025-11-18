@@ -12,6 +12,9 @@ namespace CSproject.Business.Models
         public int Quantity { get; set; }
         public int SafeStock { get; set; }
         public DateTime LastUpdated { get; set; }
-        public bool IsBelowSafeStock => Quantity < SafeStock;
+        public bool IsBelowSafeStock
+        {
+            get { return Quantity < SafeStock; }
+        }
     }
 }

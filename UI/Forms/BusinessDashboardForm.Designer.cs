@@ -598,7 +598,7 @@ namespace CSproject.UI.Forms
             this.chartSalesTrend.Series.Add(series1);
             this.chartSalesTrend.Size = new System.Drawing.Size(500, 280);
             this.chartSalesTrend.TabIndex = 0;
-            this.chartSalesTrend.Text = "chart1";
+            this.chartSalesTrend.Text = "销售趋势图";
             // 
             // chartInventoryStatus
             // 
@@ -614,7 +614,7 @@ namespace CSproject.UI.Forms
             this.chartInventoryStatus.Series.Add(series2);
             this.chartInventoryStatus.Size = new System.Drawing.Size(240, 280);
             this.chartInventoryStatus.TabIndex = 1;
-            this.chartInventoryStatus.Text = "chart2";
+            this.chartInventoryStatus.Text = "库存状态图";
             // 
             // chartSalesByCategory
             // 
@@ -630,7 +630,7 @@ namespace CSproject.UI.Forms
             this.chartSalesByCategory.Series.Add(series3);
             this.chartSalesByCategory.Size = new System.Drawing.Size(240, 280);
             this.chartSalesByCategory.TabIndex = 2;
-            this.chartSalesByCategory.Text = "chart3";
+            this.chartSalesByCategory.Text = "销售分类图";
             // 
             // dataPanel
             // 

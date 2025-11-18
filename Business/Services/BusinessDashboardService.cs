@@ -199,15 +199,15 @@ namespace CSproject.Business.Services
                 var salesTrend = salesTrends.FirstOrDefault(t => t.MonthNumber == month);
                 var purchaseTrend = purchaseTrends.FirstOrDefault(t => t.MonthNumber == month);
                 
-                trendData.Add(new MonthlyTrendModel
-                {
-                    MonthName = salesTrend?.MonthName ?? new DateTime(year, month, 1).ToString("yyyy年MM月"),
-                    MonthNumber = month,
-                    Revenue = salesTrend?.Revenue ?? 0,
-                    Cost = purchaseTrend?.Cost ?? 0,
-                    Profit = (salesTrend?.Profit ?? 0) - (purchaseTrend?.Cost ?? 0),
-                    OrdersCount = salesTrend?.OrdersCount ?? 0
-                });
+                var monthlyModel = new MonthlyTrendModel();
+                monthlyModel.MonthNumber = month;
+                monthlyModel.MonthName = (salesTrend != null) ? salesTrend.MonthName : new DateTime(year, month, 1).ToString("yyyy年MM月");
+                monthlyModel.Revenue = (salesTrend != null) ? salesTrend.Revenue : 0;
+                monthlyModel.Cost = (purchaseTrend != null) ? purchaseTrend.Cost : 0;
+                monthlyModel.Profit = ((salesTrend != null) ? salesTrend.Profit : 0) - ((purchaseTrend != null) ? purchaseTrend.Cost : 0);
+                monthlyModel.OrdersCount = (salesTrend != null) ? salesTrend.OrdersCount : 0;
+                
+                trendData.Add(monthlyModel);
             }
             
             return trendData;

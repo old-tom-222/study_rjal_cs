@@ -39,9 +39,9 @@ namespace CSproject.UI.Forms
             // 初始化产品采购报表数据网格
             dgvProductPurchase.AutoGenerateColumns = false;
             dgvProductPurchase.Columns.AddRange(
-                new DataGridViewTextBoxColumn { Name = "ProductId", HeaderText = "产品ID", DataPropertyName = "ProductId", Width = 80 },
-                new DataGridViewTextBoxColumn { Name = "ProductSku", HeaderText = "产品编码", DataPropertyName = "ProductSku", Width = 120 },
-                new DataGridViewTextBoxColumn { Name = "ProductName", HeaderText = "产品名称", DataPropertyName = "ProductName", Width = 180 },
+                new DataGridViewTextBoxColumn { Name = "ProductId", HeaderText = "商品ID", DataPropertyName = "ProductId", Width = 80 },
+                new DataGridViewTextBoxColumn { Name = "ProductSku", HeaderText = "商品SKU", DataPropertyName = "ProductSku", Width = 120 },
+                new DataGridViewTextBoxColumn { Name = "ProductName", HeaderText = "商品名称", DataPropertyName = "ProductName", Width = 180 },
                 new DataGridViewTextBoxColumn { Name = "Quantity", HeaderText = "采购数量", DataPropertyName = "Quantity", Width = 100 },
                 new DataGridViewTextBoxColumn { Name = "TotalAmount", HeaderText = "采购金额", DataPropertyName = "TotalAmount", Width = 100 },
                 new DataGridViewTextBoxColumn { Name = "AveragePrice", HeaderText = "平均单价", DataPropertyName = "AveragePrice", Width = 100 },
@@ -105,7 +105,7 @@ namespace CSproject.UI.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"加载产品采购报表失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format("加载产品采购报表失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -132,7 +132,7 @@ namespace CSproject.UI.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"加载供应商表现报表失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format("加载供应商表现报表失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -166,7 +166,7 @@ namespace CSproject.UI.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"加载采购趋势报表失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format("加载采购趋势报表失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -252,20 +252,20 @@ namespace CSproject.UI.Forms
                 {
                     saveFileDialog.Filter = "Excel文件 (*.xlsx)|*.xlsx|CSV文件 (*.csv)|*.csv";
                     saveFileDialog.Title = "导出报表";
-                    saveFileDialog.FileName = $"{fileName}_{DateTime.Now:yyyyMMdd_HHmmss}";
+                    saveFileDialog.FileName = string.Format("{0}_{1:yyyyMMdd_HHmmss}", fileName, DateTime.Now);
                     
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         // 这里可以添加实际的导出逻辑
                         // 由于是框架搭建，暂时只显示消息
-                        MessageBox.Show($"报表已导出到: {saveFileDialog.FileName}", "导出成功", 
+                        MessageBox.Show(string.Format("报表已导出到: {0}", saveFileDialog.FileName), "导出成功", 
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"导出报表失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format("导出报表失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -295,12 +295,12 @@ namespace CSproject.UI.Forms
                     string filePath = saveFileDialog.FileName;
                     // 这里添加导出功能的实现代码
                     // 示例代码：
-                    MessageBox.Show($"报表已成功导出到: {filePath}", "导出成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(string.Format("报表已成功导出到: {0}", filePath), "导出成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"导出失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format("导出失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -352,7 +352,7 @@ namespace CSproject.UI.Forms
                 using (SaveFileDialog saveFileDialog = new SaveFileDialog())
                 {
                     saveFileDialog.Filter = "Excel文件|*.xlsx|CSV文件|*.csv";                    
-                    saveFileDialog.FileName = $"供应商表现报表_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}";
+                    saveFileDialog.FileName = string.Format("供应商表现报表_{0}", DateTime.Now.ToString("yyyyMMdd_HHmmss"));
 
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
@@ -361,13 +361,13 @@ namespace CSproject.UI.Forms
                         Cursor = Cursors.WaitCursor;
                         // 模拟导出操作
                         System.Threading.Thread.Sleep(500);
-                        MessageBox.Show($"报表已成功导出至: {saveFileDialog.FileName}", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(string.Format("报表已成功导出至: {0}", saveFileDialog.FileName), "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"导出报表失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format("导出报表失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -395,7 +395,7 @@ namespace CSproject.UI.Forms
                 using (SaveFileDialog saveFileDialog = new SaveFileDialog())
                 {
                     saveFileDialog.Filter = "Excel文件|*.xlsx|CSV文件|*.csv";                    
-                    saveFileDialog.FileName = $"采购趋势报表_{DateTime.Now.ToString("yyyyMMdd_HHmmss")}";
+                    saveFileDialog.FileName = string.Format("采购趋势报表_{0}", DateTime.Now.ToString("yyyyMMdd_HHmmss"));
 
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
@@ -404,13 +404,13 @@ namespace CSproject.UI.Forms
                         Cursor = Cursors.WaitCursor;
                         // 模拟导出操作
                         System.Threading.Thread.Sleep(500);
-                        MessageBox.Show($"报表已成功导出至: {saveFileDialog.FileName}", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(string.Format("报表已成功导出至: {0}", saveFileDialog.FileName), "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"导出报表失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format("导出报表失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {

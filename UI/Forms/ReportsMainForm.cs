@@ -137,7 +137,7 @@ namespace CSproject.UI.Forms
 
         private void UpdateStatusLabel(string message)
         {
-            lblStatus.Text = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - {message}";
+            lblStatus.Text = string.Format("{0:yyyy-MM-dd HH:mm:ss} - {1}", DateTime.Now, message);
         }
 
         private void BtnRefreshDataClick(object sender, EventArgs e)
@@ -159,7 +159,7 @@ namespace CSproject.UI.Forms
                 saveFileDialog.Title = "导出报表";
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    UpdateStatusLabel($"报表已导出到: {saveFileDialog.FileName}");
+                    UpdateStatusLabel(string.Format("报表已导出到: {0}", saveFileDialog.FileName));
                 }
                 else
                 {

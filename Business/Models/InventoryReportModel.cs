@@ -14,9 +14,19 @@ namespace CSproject.Business.Models
         public decimal AverageCost { get; set; }
         public decimal TotalValue { get; set; }
         public int ReorderQuantity { get; set; }
-        public bool IsLowStock => CurrentQuantity <= ReorderQuantity;
+        public bool IsLowStock
+        {
+            get { return CurrentQuantity <= ReorderQuantity; }
+        }
         public DateTime LastStockMovementDate { get; set; }
         public int WarehouseId { get; set; }
         public string WarehouseName { get; set; }
+        
+        // 库存周转率相关属性
+        public int OpeningStock { get; set; } // 期初库存
+        public int ClosingStock { get; set; } // 期末库存
+        public decimal AverageStock { get; set; } // 平均库存
+        public int SalesQuantity { get; set; } // 销售数量
+        public decimal TurnoverRate { get; set; } // 周转率
     }
 }

@@ -55,6 +55,19 @@ namespace CSproject.UI.Forms
             this.dgvInventoryTurnover = new System.Windows.Forms.DataGridView();
             this.label8 = new System.Windows.Forms.Label();
             this.lblAvgTurnoverRate = new System.Windows.Forms.Label();
+            this.tabTransactions = new System.Windows.Forms.TabPage();
+            this.btnExportTransactions = new System.Windows.Forms.Button();
+            this.btnLoadTransactions = new System.Windows.Forms.Button();
+            this.dtpTransEndDate = new System.Windows.Forms.DateTimePicker();
+            this.dtpTransStartDate = new System.Windows.Forms.DateTimePicker();
+            this.labelTransEndDate = new System.Windows.Forms.Label();
+            this.labelTransStartDate = new System.Windows.Forms.Label();
+            this.txtTxnProductId = new System.Windows.Forms.TextBox();
+            this.txtTxnWarehouseId = new System.Windows.Forms.TextBox();
+            this.labelTxnProductId = new System.Windows.Forms.Label();
+            this.labelTxnWarehouseId = new System.Windows.Forms.Label();
+            this.dgvInventoryTransactions = new System.Windows.Forms.DataGridView();
+            this.lblTransactionCount = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabInventoryOverview.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvInventoryOverview)).BeginInit();
@@ -68,8 +81,9 @@ namespace CSproject.UI.Forms
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tabInventoryOverview);
-            this.tabControl1.Controls.Add(this.tabLowStock);
-            this.tabControl1.Controls.Add(this.tabTurnover);
+        this.tabControl1.Controls.Add(this.tabLowStock);
+        this.tabControl1.Controls.Add(this.tabTurnover);
+        this.tabControl1.Controls.Add(this.tabTransactions);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
@@ -265,24 +279,177 @@ namespace CSproject.UI.Forms
             this.lblLowStockCount.TabIndex = 0;
             this.lblLowStockCount.Text = "共 0 个产品低于安全库存";
             // 
-            // tabTurnover
-            // 
-            this.tabTurnover.Controls.Add(this.btnExportTurnover);
-            this.tabTurnover.Controls.Add(this.btnLoadTurnover);
-            this.tabTurnover.Controls.Add(this.dtpEndDate);
-            this.tabTurnover.Controls.Add(this.dtpStartDate);
-            this.tabTurnover.Controls.Add(this.label7);
-            this.tabTurnover.Controls.Add(this.label6);
-            this.tabTurnover.Controls.Add(this.dgvInventoryTurnover);
-            this.tabTurnover.Controls.Add(this.label8);
-            this.tabTurnover.Controls.Add(this.lblAvgTurnoverRate);
-            this.tabTurnover.Location = new System.Drawing.Point(4, 22);
-            this.tabTurnover.Name = "tabTurnover";
-            this.tabTurnover.Padding = new System.Windows.Forms.Padding(3);
-            this.tabTurnover.Size = new System.Drawing.Size(792, 424);
-            this.tabTurnover.TabIndex = 2;
-            this.tabTurnover.Text = "库存周转率";
-            this.tabTurnover.UseVisualStyleBackColor = true;
+        // tabTurnover
+        // 
+        this.tabTurnover.Controls.Add(this.btnExportTurnover);
+        this.tabTurnover.Controls.Add(this.btnLoadTurnover);
+        this.tabTurnover.Controls.Add(this.dtpEndDate);
+        this.tabTurnover.Controls.Add(this.dtpStartDate);
+        this.tabTurnover.Controls.Add(this.label7);
+        this.tabTurnover.Controls.Add(this.label6);
+        this.tabTurnover.Controls.Add(this.dgvInventoryTurnover);
+        this.tabTurnover.Controls.Add(this.label8);
+        this.tabTurnover.Controls.Add(this.lblAvgTurnoverRate);
+        this.tabTurnover.Location = new System.Drawing.Point(4, 22);
+        this.tabTurnover.Name = "tabTurnover";
+        this.tabTurnover.Padding = new System.Windows.Forms.Padding(3);
+        this.tabTurnover.Size = new System.Drawing.Size(792, 424);
+        this.tabTurnover.TabIndex = 2;
+        this.tabTurnover.Text = "库存周转率";
+        this.tabTurnover.UseVisualStyleBackColor = true;
+        // 
+        // tabTransactions
+        // 
+        this.tabTransactions.Controls.Add(this.btnExportTransactions);
+        this.tabTransactions.Controls.Add(this.btnLoadTransactions);
+        this.tabTransactions.Controls.Add(this.dtpTransEndDate);
+        this.tabTransactions.Controls.Add(this.dtpTransStartDate);
+        this.tabTransactions.Controls.Add(this.labelTransEndDate);
+        this.tabTransactions.Controls.Add(this.labelTransStartDate);
+        this.tabTransactions.Controls.Add(this.txtTxnProductId);
+        this.tabTransactions.Controls.Add(this.txtTxnWarehouseId);
+        this.tabTransactions.Controls.Add(this.labelTxnProductId);
+        this.tabTransactions.Controls.Add(this.labelTxnWarehouseId);
+        this.tabTransactions.Controls.Add(this.dgvInventoryTransactions);
+        this.tabTransactions.Controls.Add(this.lblTransactionCount);
+        this.tabTransactions.Location = new System.Drawing.Point(4, 22);
+        this.tabTransactions.Name = "tabTransactions";
+        this.tabTransactions.Padding = new System.Windows.Forms.Padding(3);
+        this.tabTransactions.Size = new System.Drawing.Size(792, 424);
+        this.tabTransactions.TabIndex = 3;
+        this.tabTransactions.Text = "库存流水";
+        this.tabTransactions.UseVisualStyleBackColor = true;
+        // 
+        // btnExportTransactions
+        // 
+        this.btnExportTransactions.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+        this.btnExportTransactions.Location = new System.Drawing.Point(700, 10);
+        this.btnExportTransactions.Name = "btnExportTransactions";
+        this.btnExportTransactions.Size = new System.Drawing.Size(80, 30);
+        this.btnExportTransactions.TabIndex = 6;
+        this.btnExportTransactions.Text = "导出";
+        this.btnExportTransactions.UseVisualStyleBackColor = true;
+        this.btnExportTransactions.Click += new System.EventHandler(this.BtnExportTransactionsClick);
+        // 
+        // btnLoadTransactions
+        // 
+        this.btnLoadTransactions.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+        this.btnLoadTransactions.Location = new System.Drawing.Point(610, 10);
+        this.btnLoadTransactions.Name = "btnLoadTransactions";
+        this.btnLoadTransactions.Size = new System.Drawing.Size(80, 30);
+        this.btnLoadTransactions.TabIndex = 5;
+        this.btnLoadTransactions.Text = "加载";
+        this.btnLoadTransactions.UseVisualStyleBackColor = true;
+        this.btnLoadTransactions.Click += new System.EventHandler(this.BtnLoadTransactionsClick);
+        // 
+        // dtpTransEndDate
+        // 
+        this.dtpTransEndDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+        this.dtpTransEndDate.Location = new System.Drawing.Point(400, 14);
+        this.dtpTransEndDate.Name = "dtpTransEndDate";
+        this.dtpTransEndDate.Size = new System.Drawing.Size(120, 21);
+        this.dtpTransEndDate.TabIndex = 8;
+        // 
+        // dtpTransStartDate
+        // 
+        this.dtpTransStartDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+        this.dtpTransStartDate.Location = new System.Drawing.Point(250, 14);
+        this.dtpTransStartDate.Name = "dtpTransStartDate";
+        this.dtpTransStartDate.Size = new System.Drawing.Size(120, 21);
+        this.dtpTransStartDate.TabIndex = 7;
+        // 
+        // labelTransStartDate
+        // 
+        this.labelTransStartDate.AutoSize = true;
+        this.labelTransStartDate.Location = new System.Drawing.Point(200, 17);
+        this.labelTransStartDate.Name = "labelTransStartDate";
+        this.labelTransStartDate.Size = new System.Drawing.Size(47, 12);
+        this.labelTransStartDate.TabIndex = 6;
+        this.labelTransStartDate.Text = "开始日期";
+        // 
+        // labelTransEndDate
+        // 
+        this.labelTransEndDate.AutoSize = true;
+        this.labelTransEndDate.Location = new System.Drawing.Point(370, 17);
+        this.labelTransEndDate.Name = "labelTransEndDate";
+        this.labelTransEndDate.Size = new System.Drawing.Size(47, 12);
+        this.labelTransEndDate.TabIndex = 5;
+        this.labelTransEndDate.Text = "结束日期";
+        // 
+        // txtTxnProductId
+        // 
+        this.txtTxnProductId.Location = new System.Drawing.Point(70, 14);
+        this.txtTxnProductId.Name = "txtTxnProductId";
+        this.txtTxnProductId.Size = new System.Drawing.Size(60, 21);
+        this.txtTxnProductId.TabIndex = 1;
+        // 
+        // txtTxnWarehouseId
+        // 
+        this.txtTxnWarehouseId.Location = new System.Drawing.Point(180, 14);
+        this.txtTxnWarehouseId.Name = "txtTxnWarehouseId";
+        this.txtTxnWarehouseId.Size = new System.Drawing.Size(60, 21);
+        this.txtTxnWarehouseId.TabIndex = 3;
+        // 
+        // labelTxnProductId
+        // 
+        this.labelTxnProductId.AutoSize = true;
+        this.labelTxnProductId.Location = new System.Drawing.Point(6, 17);
+        this.labelTxnProductId.Name = "labelTxnProductId";
+        this.labelTxnProductId.Size = new System.Drawing.Size(47, 12);
+        this.labelTxnProductId.TabIndex = 0;
+        this.labelTxnProductId.Text = "商品ID:";
+        // 
+        // labelTxnWarehouseId
+        // 
+        this.labelTxnWarehouseId.AutoSize = true;
+        this.labelTxnWarehouseId.Location = new System.Drawing.Point(140, 17);
+        this.labelTxnWarehouseId.Name = "labelTxnWarehouseId";
+        this.labelTxnWarehouseId.Size = new System.Drawing.Size(47, 12);
+        this.labelTxnWarehouseId.TabIndex = 2;
+        this.labelTxnWarehouseId.Text = "仓库ID:";
+        // 
+        // labelTransEndDate
+        // 
+        this.labelTransEndDate.AutoSize = true;
+        this.labelTransEndDate.Location = new System.Drawing.Point(180, 17);
+        this.labelTransEndDate.Name = "labelTransEndDate";
+        this.labelTransEndDate.Size = new System.Drawing.Size(47, 12);
+        this.labelTransEndDate.TabIndex = 2;
+        this.labelTransEndDate.Text = "结束日期";
+        // 
+        // labelTransStartDate
+        // 
+        this.labelTransStartDate.AutoSize = true;
+        this.labelTransStartDate.Location = new System.Drawing.Point(6, 17);
+        this.labelTransStartDate.Name = "labelTransStartDate";
+        this.labelTransStartDate.Size = new System.Drawing.Size(47, 12);
+        this.labelTransStartDate.TabIndex = 1;
+        this.labelTransStartDate.Text = "开始日期";
+        // 
+        // dgvInventoryTransactions
+        // 
+        this.dgvInventoryTransactions.AllowUserToAddRows = false;
+        this.dgvInventoryTransactions.AllowUserToDeleteRows = false;
+        this.dgvInventoryTransactions.AllowUserToOrderColumns = true;
+        this.dgvInventoryTransactions.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+        | System.Windows.Forms.AnchorStyles.Left)
+        | System.Windows.Forms.AnchorStyles.Right)));
+        this.dgvInventoryTransactions.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        this.dgvInventoryTransactions.Location = new System.Drawing.Point(6, 50);
+        this.dgvInventoryTransactions.Name = "dgvInventoryTransactions";
+        this.dgvInventoryTransactions.ReadOnly = true;
+        this.dgvInventoryTransactions.Size = new System.Drawing.Size(776, 364);
+        this.dgvInventoryTransactions.TabIndex = 0;
+        // 
+        // lblTransactionCount
+        // 
+        this.lblTransactionCount.AutoSize = true;
+        this.lblTransactionCount.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+        this.lblTransactionCount.Location = new System.Drawing.Point(6, 16);
+        this.lblTransactionCount.Name = "lblTransactionCount";
+        this.lblTransactionCount.Size = new System.Drawing.Size(107, 17);
+        this.lblTransactionCount.TabIndex = 7;
+        this.lblTransactionCount.Text = "共 0 条流水记录";
             // 
             // btnExportTurnover
             // 
@@ -428,5 +595,18 @@ namespace CSproject.UI.Forms
         private System.Windows.Forms.DataGridView dgvInventoryTurnover;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label lblAvgTurnoverRate;
+        private System.Windows.Forms.TabPage tabTransactions;
+        private System.Windows.Forms.Button btnLoadTransactions;
+        private System.Windows.Forms.Button btnExportTransactions;
+        private System.Windows.Forms.DataGridView dgvInventoryTransactions;
+        private System.Windows.Forms.DateTimePicker dtpTransStartDate;
+        private System.Windows.Forms.DateTimePicker dtpTransEndDate;
+        private System.Windows.Forms.Label labelTransStartDate;
+        private System.Windows.Forms.Label labelTransEndDate;
+        private System.Windows.Forms.Label lblTransactionCount;
+        private System.Windows.Forms.TextBox txtTxnProductId;
+        private System.Windows.Forms.TextBox txtTxnWarehouseId;
+        private System.Windows.Forms.Label labelTxnProductId;
+        private System.Windows.Forms.Label labelTxnWarehouseId;
     }
 }

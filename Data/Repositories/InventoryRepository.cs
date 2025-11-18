@@ -122,5 +122,60 @@ namespace CSproject.Data.Repositories
             }
             return result;
         }
+
+        // 更新库存数量（用于采购订单完成后自动更新库存）
+        public void UpdateInventory(int productId, int warehouseId, int quantityChange)
+        {
+            string connectionString = DbHelper.GetConnectionString();
+            
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+                
+                // 检查库存记录是否存在
+                string checkSql = @"SELECT quantity FROM inventory 
+                                   WHERE product_id = @productId AND warehouse_id = @warehouseId";
+                MySqlCommand checkCmd = new MySqlCommand(checkSql, connection);
+                checkCmd.Parameters.AddWithValue("@productId", productId);
+                checkCmd.Parameters.AddWithValue("@warehouseId", warehouseId);
+                
+                object result = checkCmd.ExecuteScalar();
+                
+                if (result != null)
+                {
+                    // 库存记录存在，更新数量
+                    int currentQuantity = Convert.ToInt32(result);
+                    int newQuantity = currentQuantity + quantityChange;
+                    
+                    string updateSql = @"UPDATE inventory 
+                                       SET quantity = @newQuantity, last_updated = @lastUpdated
+                                       WHERE product_id = @productId AND warehouse_id = @warehouseId";
+                    MySqlCommand updateCmd = new MySqlCommand(updateSql, connection);
+                    updateCmd.Parameters.AddWithValue("@newQuantity", newQuantity);
+                    updateCmd.Parameters.AddWithValue("@lastUpdated", DateTime.Now);
+                    updateCmd.Parameters.AddWithValue("@productId", productId);
+                    updateCmd.Parameters.AddWithValue("@warehouseId", warehouseId);
+                    
+                    updateCmd.ExecuteNonQuery();
+                }
+                else
+                {
+                    // 库存记录不存在，创建新记录
+                    string insertSql = @"INSERT INTO inventory (product_id, warehouse_id, quantity, last_updated)
+                                       VALUES (@productId, @warehouseId, @quantity, @lastUpdated)";
+                    MySqlCommand insertCmd = new MySqlCommand(insertSql, connection);
+                    insertCmd.Parameters.AddWithValue("@productId", productId);
+                    insertCmd.Parameters.AddWithValue("@warehouseId", warehouseId);
+                    insertCmd.Parameters.AddWithValue("@quantity", quantityChange);
+                    insertCmd.Parameters.AddWithValue("@lastUpdated", DateTime.Now);
+                    
+                    insertCmd.ExecuteNonQuery();
+                }
+                
+                // 记录库存流水
+                var transactionRepo = new InventoryTransactionRepository();
+                transactionRepo.AddTransaction(productId, warehouseId, quantityChange, "采购入库", "采购订单", "采购订单完成后自动入库");
+            }
+        }
     }
 }
