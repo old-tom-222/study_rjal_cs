@@ -118,3 +118,38 @@ CREATE TABLE inventory(
     FOREIGN KEY(warehouse_id) REFERENCES warehouse(id),
     UNIQUE KEY unique_inventory(product_id, warehouse_id)
 );
+
+-- 库存交易记录表
+CREATE TABLE IF NOT EXISTS inventory_transaction (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    product_id INT NOT NULL,
+    warehouse_id INT NOT NULL,
+    change_qty INT NOT NULL,
+    type VARCHAR(50) NOT NULL DEFAULT 'adjust',
+    reference VARCHAR(100) NULL,
+    remark TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    -- 添加外键约束
+    FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE,
+    FOREIGN KEY (warehouse_id) REFERENCES warehouse(id) ON DELETE CASCADE
+);
+
+-- 添加索引以提高查询性能
+CREATE INDEX idx_product_id ON inventory_transaction(product_id);
+CREATE INDEX idx_warehouse_id ON inventory_transaction(warehouse_id);
+CREATE INDEX idx_type ON inventory_transaction(type);
+CREATE INDEX idx_created_at ON inventory_transaction(created_at);
+CREATE INDEX idx_reference ON inventory_transaction(reference);
+
+-- 初始数据插入：商品分类
+INSERT INTO product_category (name, parent_id) VALUES ('电子产品', NULL);
+INSERT INTO product_category (name, parent_id) VALUES ('办公用品', NULL);
+INSERT INTO product_category (name, parent_id) VALUES ('电脑设备', 1);
+INSERT INTO product_category (name, parent_id) VALUES ('手机配件', 1);
+
+-- 初始数据插入：商品信息
+INSERT INTO product (sku, name, category_id, cost_price, sale_price, safe_stock, status) VALUES 
+('P001', '笔记本电脑', 3, 4500.00, 5999.00, 5, 1),
+('P002', '无线鼠标', 3, 50.00, 99.00, 20, 1),
+('P003', '智能手机', 4, 1200.00, 1999.00, 10, 1),
+('P004', 'A4打印纸', 2, 20.00, 25.00, 50, 1);

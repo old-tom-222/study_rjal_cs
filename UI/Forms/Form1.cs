@@ -26,6 +26,13 @@ namespace CSproject
                     return;
                 }
 
+                // 添加UI控件的空引用检查
+                if (txtAccount == null || txtPassword == null)
+                {
+                    MessageBox.Show("登录界面控件未正确初始化", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 // 验证输入
                 if (string.IsNullOrEmpty(txtAccount.Text))
                 {
@@ -38,6 +45,16 @@ namespace CSproject
                 {
                     MessageBox.Show("请输入密码", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     txtPassword.Focus();
+                    return;
+                }
+                
+                // 不需要检查静态类DbHelper是否为null，因为静态类永远不会为null
+
+                // 先测试数据库连接状态
+                if (!DbHelper.TestConnection())
+                {
+                    MessageBox.Show("数据库连接失败，请检查数据库服务是否启动以及连接配置是否正确。\n错误：无法连接到数据库服务器。", "连接错误", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
@@ -70,11 +87,16 @@ namespace CSproject
             panelLogin.Visible = false;
             panelRegister.Visible = true;
             this.AcceptButton = btnRegisterAndLogin;
-            if (cmbRole.SelectedIndex < 0) cmbRole.SelectedIndex = 0;
-            txtRegAccount.Text = "";
-            txtRegPassword.Text = "";
-            txtName.Text = "";
-            txtRegAccount.Focus();
+            // 安全地设置角色下拉框的默认值，避免空引用异常和无效索引错误
+            if (cmbRole != null && cmbRole.Items.Count > 0 && cmbRole.SelectedIndex < 0)
+            {
+                cmbRole.SelectedIndex = 0;
+            }
+            // 添加空引用检查
+            if (txtRegAccount != null) txtRegAccount.Text = "";
+            if (txtRegPassword != null) txtRegPassword.Text = "";
+            if (txtName != null) txtName.Text = "";
+            if (txtRegAccount != null) txtRegAccount.Focus();
         }
 
         private void BtnBackClick(object sender, EventArgs e)
@@ -90,6 +112,15 @@ namespace CSproject
         {
             try
             {
+                // 添加UI控件的空引用检查
+                if (txtRegAccount == null || txtRegPassword == null || txtName == null || cmbRole == null)
+                {
+                    MessageBox.Show("注册界面控件未正确初始化", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                
+                // 不需要检查静态类DbHelper是否为null，因为静态类永远不会为null
+
                 // 验证输入（注册界面）
                 if (string.IsNullOrEmpty(txtRegAccount.Text))
                 {

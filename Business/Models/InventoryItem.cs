@@ -11,6 +11,7 @@ namespace CSproject.Business.Models
         public string WarehouseName { get; set; }
         public int Quantity { get; set; }
         public int SafeStock { get; set; }
+        public decimal UnitPrice { get; set; } // 添加单价属性
         public DateTime LastUpdated { get; set; }
         public bool IsBelowSafeStock
         {

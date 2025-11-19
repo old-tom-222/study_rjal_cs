@@ -13,7 +13,7 @@ namespace CSproject.Data.Repositories
             var result = new List<InventoryItem>();
             string sql = @"SELECT i.product_id, p.sku, p.name AS product_name,
                                    i.warehouse_id, w.name AS warehouse_name,
-                                   i.quantity, p.safe_stock, i.last_updated
+                                   i.quantity, p.safe_stock, p.sale_price, i.last_updated
                             FROM inventory i
                             INNER JOIN product p ON p.id = i.product_id
                             INNER JOIN warehouse w ON w.id = i.warehouse_id
@@ -39,6 +39,7 @@ namespace CSproject.Data.Repositories
                             WarehouseName = reader["warehouse_name"].ToString(),
                             Quantity = Convert.ToInt32(reader["quantity"]),
                             SafeStock = Convert.ToInt32(reader["safe_stock"]),
+                            UnitPrice = Convert.ToDecimal(reader["sale_price"]),
                             LastUpdated = Convert.ToDateTime(reader["last_updated"])
                         });
                     }
@@ -52,7 +53,7 @@ namespace CSproject.Data.Repositories
             InventoryItem item = null;
             string sql = @"SELECT i.product_id, p.sku, p.name AS product_name,
                                    i.warehouse_id, w.name AS warehouse_name,
-                                   i.quantity, p.safe_stock, i.last_updated
+                                   i.quantity, p.safe_stock, p.sale_price, i.last_updated
                             FROM inventory i
                             INNER JOIN product p ON p.id = i.product_id
                             INNER JOIN warehouse w ON w.id = i.warehouse_id
@@ -76,7 +77,8 @@ namespace CSproject.Data.Repositories
                             WarehouseName = reader["warehouse_name"].ToString(),
                             Quantity = Convert.ToInt32(reader["quantity"]),
                             SafeStock = Convert.ToInt32(reader["safe_stock"]),
-                            LastUpdated = Convert.ToDateTime(reader["last_updated"])
+                        UnitPrice = Convert.ToDecimal(reader["sale_price"]),
+                        LastUpdated = Convert.ToDateTime(reader["last_updated"])
                         };
                     }
                 }
@@ -86,13 +88,48 @@ namespace CSproject.Data.Repositories
 
 
 
+        /// <summary>
+        /// 获取指定产品在所有仓库中的库存总和
+        /// </summary>
+        public int GetTotalInventoryByProductId(int productId)
+        {
+            // 先检查产品是否存在
+            string checkProductSql = "SELECT COUNT(*) FROM product WHERE id = @productId";
+            
+            using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
+            {
+                conn.Open();
+                
+                // 检查产品存在性
+                using (var checkCmd = new MySqlCommand(checkProductSql, conn))
+                {
+                    checkCmd.Parameters.AddWithValue("@productId", productId);
+                    int productCount = Convert.ToInt32(checkCmd.ExecuteScalar());
+                    
+                    if (productCount == 0)
+                    {
+                        // 产品不存在，返回-1
+                        return -1;
+                    }
+                }
+                
+                // 产品存在，计算总库存
+                string inventorySql = "SELECT COALESCE(SUM(quantity), 0) FROM inventory WHERE product_id = @productId";
+                using (var inventoryCmd = new MySqlCommand(inventorySql, conn))
+                {
+                    inventoryCmd.Parameters.AddWithValue("@productId", productId);
+                    return Convert.ToInt32(inventoryCmd.ExecuteScalar());
+                }
+            }
+        }
+
         // 库存预警：数量低于安全库存
         public List<InventoryItem> GetLowStockWarnings()
         {
             var result = new List<InventoryItem>();
             string sql = @"SELECT i.product_id, p.sku, p.name AS product_name,
                                    i.warehouse_id, w.name AS warehouse_name,
-                                   i.quantity, p.safe_stock, i.last_updated
+                                   i.quantity, p.safe_stock, p.sale_price, i.last_updated
                             FROM inventory i
                             INNER JOIN product p ON p.id = i.product_id
                             INNER JOIN warehouse w ON w.id = i.warehouse_id
@@ -115,6 +152,7 @@ namespace CSproject.Data.Repositories
                             WarehouseName = reader["warehouse_name"].ToString(),
                             Quantity = Convert.ToInt32(reader["quantity"]),
                             SafeStock = Convert.ToInt32(reader["safe_stock"]),
+                            UnitPrice = Convert.ToDecimal(reader["sale_price"]),
                             LastUpdated = Convert.ToDateTime(reader["last_updated"])
                         });
                     }
@@ -122,6 +160,7 @@ namespace CSproject.Data.Repositories
             }
             return result;
         }
+<<<<<<< HEAD
 
         // 更新库存数量（用于采购订单完成后自动更新库存）
         public void UpdateInventory(int productId, int warehouseId, int quantityChange)
@@ -175,6 +214,32 @@ namespace CSproject.Data.Repositories
                 // 记录库存流水
                 var transactionRepo = new InventoryTransactionRepository();
                 transactionRepo.AddTransaction(productId, warehouseId, quantityChange, "采购入库", "采购订单", "采购订单完成后自动入库");
+            }
+        }
+        
+        /// <summary>
+        /// 减少库存数量
+        /// </summary>
+        public bool ReduceInventory(int productId, int warehouseId, int quantity)
+        {
+            string sql = @"UPDATE inventory 
+                           SET quantity = quantity - @quantity, 
+                               last_updated = NOW()
+                           WHERE product_id = @productId 
+                             AND warehouse_id = @warehouseId 
+                             AND quantity >= @quantity";
+            
+            using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
+            using (var cmd = new MySqlCommand(sql, conn))
+            {
+                conn.Open();
+                cmd.Parameters.AddWithValue("@productId", productId);
+                cmd.Parameters.AddWithValue("@warehouseId", warehouseId);
+                cmd.Parameters.AddWithValue("@quantity", quantity);
+                
+                int affectedRows = cmd.ExecuteNonQuery();
+                return affectedRows > 0;
+            }
             }
         }
     }

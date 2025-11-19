@@ -187,7 +187,9 @@ namespace CSproject.Business.Services
         public List<MonthlyTrendModel> GetBusinessTrendData(int year)
         {
             // 获取销售趋势
-            var salesTrends = _salesReportService.GetSalesTrendReport(year);
+            var startDate = new DateTime(year, 1, 1);
+            var endDate = new DateTime(year, 12, 31);
+            var salesTrends = _salesReportService.GetSalesTrendReport(startDate, endDate, 1);
             // 获取采购趋势
             var purchaseTrends = _purchaseReportService.GetPurchaseTrendReport(year);
             

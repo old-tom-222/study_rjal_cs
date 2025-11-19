@@ -39,6 +39,13 @@ namespace CSproject.UI.Forms
             this.btnFinance = new System.Windows.Forms.Button();
             this.btnBasicData = new System.Windows.Forms.Button();
             this.btnReports = new System.Windows.Forms.Button();
+            this.panelSalesSubMenu = new System.Windows.Forms.Panel();
+            this.lblSalesSubMenuTitle = new System.Windows.Forms.Label();
+            this.btnSalesOrderList = new System.Windows.Forms.Button();
+            this.btnSalesOrderCreate = new System.Windows.Forms.Button();
+            this.btnShipmentManagement = new System.Windows.Forms.Button();
+            this.btnSalesStatistics = new System.Windows.Forms.Button();
+            this.btnSalesRanking = new System.Windows.Forms.Button();
             this.panelContent = new System.Windows.Forms.Panel();
             this.lblPlaceholder = new System.Windows.Forms.Label();
             this.panelTop.SuspendLayout();
@@ -94,6 +101,82 @@ namespace CSproject.UI.Forms
             this.panelSidebar.Size = new System.Drawing.Size(220, 560);
             this.panelSidebar.TabIndex = 1;
             // 
+            // panelSalesSubMenu
+            // 
+            this.panelSalesSubMenu.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.panelSalesSubMenu.Controls.Add(this.btnSalesRanking);
+            this.panelSalesSubMenu.Controls.Add(this.btnSalesStatistics);
+            this.panelSalesSubMenu.Controls.Add(this.btnShipmentManagement);
+            this.panelSalesSubMenu.Controls.Add(this.btnSalesOrderCreate);
+            this.panelSalesSubMenu.Controls.Add(this.btnSalesOrderList);
+            this.panelSalesSubMenu.Controls.Add(this.lblSalesSubMenuTitle);
+            this.panelSalesSubMenu.Dock = System.Windows.Forms.DockStyle.Left;
+            this.panelSalesSubMenu.Location = new System.Drawing.Point(220, 40);
+            this.panelSalesSubMenu.Name = "panelSalesSubMenu";
+            this.panelSalesSubMenu.Size = new System.Drawing.Size(180, 560);
+            this.panelSalesSubMenu.TabIndex = 3;
+            this.panelSalesSubMenu.Visible = false;
+            // 
+            // lblSalesSubMenuTitle
+            // 
+            this.lblSalesSubMenuTitle.AutoSize = true;
+            this.lblSalesSubMenuTitle.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblSalesSubMenuTitle.Location = new System.Drawing.Point(10, 10);
+            this.lblSalesSubMenuTitle.Name = "lblSalesSubMenuTitle";
+            this.lblSalesSubMenuTitle.Size = new System.Drawing.Size(54, 17);
+            this.lblSalesSubMenuTitle.TabIndex = 0;
+            this.lblSalesSubMenuTitle.Text = "销售管理";
+            // 
+            // btnSalesOrderList
+            // 
+            this.btnSalesOrderList.Location = new System.Drawing.Point(10, 40);
+            this.btnSalesOrderList.Name = "btnSalesOrderList";
+            this.btnSalesOrderList.Size = new System.Drawing.Size(160, 30);
+            this.btnSalesOrderList.TabIndex = 1;
+            this.btnSalesOrderList.Text = "订单列表（主要页面）";
+            this.btnSalesOrderList.UseVisualStyleBackColor = true;
+            this.btnSalesOrderList.Click += new System.EventHandler(this.btnSalesOrderList_Click);
+            // 
+            // btnSalesOrderCreate
+            // 
+            this.btnSalesOrderCreate.Location = new System.Drawing.Point(10, 80);
+            this.btnSalesOrderCreate.Name = "btnSalesOrderCreate";
+            this.btnSalesOrderCreate.Size = new System.Drawing.Size(160, 30);
+            this.btnSalesOrderCreate.TabIndex = 2;
+            this.btnSalesOrderCreate.Text = "新建订单";
+            this.btnSalesOrderCreate.UseVisualStyleBackColor = true;
+            this.btnSalesOrderCreate.Click += new System.EventHandler(this.btnSalesOrderCreate_Click);
+            // 
+            // btnShipmentManagement
+            // 
+            this.btnShipmentManagement.Location = new System.Drawing.Point(10, 120);
+            this.btnShipmentManagement.Name = "btnShipmentManagement";
+            this.btnShipmentManagement.Size = new System.Drawing.Size(160, 30);
+            this.btnShipmentManagement.TabIndex = 3;
+            this.btnShipmentManagement.Text = "待发货订单";
+            this.btnShipmentManagement.UseVisualStyleBackColor = true;
+            this.btnShipmentManagement.Click += new System.EventHandler(this.btnShipmentManagement_Click);
+            // 
+            // btnSalesStatistics
+            // 
+            this.btnSalesStatistics.Location = new System.Drawing.Point(10, 160);
+            this.btnSalesStatistics.Name = "btnSalesStatistics";
+            this.btnSalesStatistics.Size = new System.Drawing.Size(160, 30);
+            this.btnSalesStatistics.TabIndex = 4;
+            this.btnSalesStatistics.Text = "销售统计";
+            this.btnSalesStatistics.UseVisualStyleBackColor = true;
+            this.btnSalesStatistics.Click += new System.EventHandler(this.btnSalesStatistics_Click);
+            // 
+            // btnSalesRanking
+            // 
+            this.btnSalesRanking.Location = new System.Drawing.Point(10, 200);
+            this.btnSalesRanking.Name = "btnSalesRanking";
+            this.btnSalesRanking.Size = new System.Drawing.Size(160, 30);
+            this.btnSalesRanking.TabIndex = 5;
+            this.btnSalesRanking.Text = "销售排名";
+            this.btnSalesRanking.UseVisualStyleBackColor = true;
+            this.btnSalesRanking.Click += new System.EventHandler(this.btnSalesRanking_Click);
+            // 
             // lblTitle
             // 
             this.lblTitle.AutoSize = true;
@@ -122,7 +205,7 @@ namespace CSproject.UI.Forms
             this.btnSales.TabIndex = 2;
             this.btnSales.Text = "销售管理";
             this.btnSales.UseVisualStyleBackColor = true;
-            this.btnSales.Click += new System.EventHandler(this.BtnMenuSalesClick);
+            this.btnSales.Click += new System.EventHandler(this.btnSales_Click);
             // 
             // btnInventory
             // 
@@ -164,14 +247,17 @@ namespace CSproject.UI.Forms
             this.btnReports.UseVisualStyleBackColor = true;
             this.btnReports.Click += new System.EventHandler(this.BtnMenuReportsClick);
             // 
+            // 
+            // 移除原始的菜单控件，使用左侧导航布局代替
+            // 
             // panelContent
             // 
             this.panelContent.BackColor = System.Drawing.Color.White;
             this.panelContent.Controls.Add(this.lblPlaceholder);
             this.panelContent.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelContent.Location = new System.Drawing.Point(220, 40);
+            this.panelContent.Location = new System.Drawing.Point(400, 40);
             this.panelContent.Name = "panelContent";
-            this.panelContent.Size = new System.Drawing.Size(680, 560);
+            this.panelContent.Size = new System.Drawing.Size(500, 560);
             this.panelContent.TabIndex = 2;
             // 
             // lblPlaceholder
@@ -190,6 +276,7 @@ namespace CSproject.UI.Forms
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(900, 600);
             this.Controls.Add(this.panelContent);
+            this.Controls.Add(this.panelSalesSubMenu);
             this.Controls.Add(this.panelSidebar);
             this.Controls.Add(this.panelTop);
             this.Name = "Form2";
@@ -201,6 +288,7 @@ namespace CSproject.UI.Forms
             this.panelContent.ResumeLayout(false);
             this.panelContent.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
         }
 
         #endregion
@@ -218,5 +306,12 @@ namespace CSproject.UI.Forms
         private System.Windows.Forms.Button btnReports;
         private System.Windows.Forms.Panel panelContent;
         private System.Windows.Forms.Label lblPlaceholder;
+        private System.Windows.Forms.Panel panelSalesSubMenu;
+        private System.Windows.Forms.Label lblSalesSubMenuTitle;
+        private System.Windows.Forms.Button btnSalesOrderList;
+        private System.Windows.Forms.Button btnSalesOrderCreate;
+        private System.Windows.Forms.Button btnShipmentManagement;
+        private System.Windows.Forms.Button btnSalesStatistics;
+        private System.Windows.Forms.Button btnSalesRanking;
     }
 }

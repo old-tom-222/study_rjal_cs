@@ -9,10 +9,12 @@ namespace CSproject.Business.Services
     public class SalesReportService
     {
         private readonly InventoryTransactionRepository _transactionRepo;
+        private readonly SalesReportRepository _reportRepo;
 
         public SalesReportService()
         {
             _transactionRepo = new InventoryTransactionRepository();
+            _reportRepo = new SalesReportRepository();
         }
 
         /// <summary>
@@ -20,40 +22,8 @@ namespace CSproject.Business.Services
         /// </summary>
         public List<SalesReportModel> GetProductSalesReport(DateTime startDate, DateTime endDate)
         {
-            // 获取销售类型的交易记录
-            // 获取时间范围内的所有交易记录
-            var allTransactions = _transactionRepo.GetTransactions(from: startDate, to: endDate);
-            // 筛选出销售类型的交易记录
-            var salesTransactions = allTransactions.Where(t => t.Type == "sale").ToList();
-            
-            // 按产品分组统计
-            var productGroups = salesTransactions.GroupBy(t => t.ProductId);
-            var reportItems = new List<SalesReportModel>();
-
-            foreach (var group in productGroups)
-            {
-                int totalQuantity = group.Sum(t => Math.Abs(t.ChangeQty)); // 销售是负数，取绝对值
-                decimal averagePrice = 0; // 实际应用中需要从销售订单获取价格信息
-                decimal totalRevenue = averagePrice * totalQuantity;
-
-                var reportItem = new SalesReportModel
-                {
-                    ProductId = group.Key,
-                    ProductSku = group.First().ProductSku,
-                    ProductName = group.First().ProductName,
-                    QuantitySold = totalQuantity,
-                    TotalRevenue = totalRevenue,
-                    AveragePrice = averagePrice,
-                    StartDate = startDate,
-                    EndDate = endDate,
-                    ProfitMargin = 30, // 默认利润率30%，实际应用中需要计算
-                    // 其他属性可以从其他数据源获取
-                };
-
-                reportItems.Add(reportItem);
-            }
-
-            return reportItems.OrderByDescending(r => r.QuantitySold).ToList();
+            // 直接调用Repository层的方法获取产品销售报表数据
+            return _reportRepo.GetProductSalesReport(startDate, endDate);
         }
 
         /// <summary>
@@ -89,30 +59,69 @@ namespace CSproject.Business.Services
         /// <summary>
         /// 获取销售趋势报表
         /// </summary>
-        public List<MonthlyTrendModel> GetSalesTrendReport(int year)
+        public List<MonthlyTrendModel> GetSalesTrendReport(DateTime startDate, DateTime endDate, int granularity = 2) // 0=日, 1=周, 2=月
         {
-            var reportItems = new List<MonthlyTrendModel>();
+            // 调用Repository获取真实的销售趋势数据
+            return _reportRepo.GetSalesTrendReport(startDate, endDate, granularity);
+        }
 
-            // 生成全年12个月的报表数据
-            for (int month = 1; month <= 12; month++)
+        /// <summary>
+        /// 获取客户销售排名
+        /// </summary>
+        public List<CustomerRankingModel> GetCustomerRankings(DateTime startDate, DateTime endDate, int topN = 10)
+        {
+            return _reportRepo.GetCustomerRankings(startDate, endDate, topN);
+        }
+
+        /// <summary>
+        /// 获取产品销售排名
+        /// </summary>
+        public List<ProductRankingModel> GetProductRankings(DateTime startDate, DateTime endDate, int topN = 10)
+        {
+            return _reportRepo.GetProductRankings(startDate, endDate, topN);
+        }
+
+        /// <summary>
+        /// 获取月度销售数据
+        /// </summary>
+        public List<MonthlySalesData> GetMonthlySalesData(int year)
+        {
+            return _reportRepo.GetMonthlySalesData(year);
+        }
+
+        /// <summary>
+        /// 获取销售统计数据
+        /// </summary>
+        public SalesReportModel GetSalesSummary(DateTime startDate, DateTime endDate)
+        {
+            var summary = new SalesReportModel
             {
-                var monthName = new DateTime(year, month, 1).ToString("yyyy年MM月");
-                decimal revenue = new Random(month).Next(50000, 200000);
-                decimal cost = revenue * 0.7m; // 假设成本是收入的70%
-                decimal profit = revenue - cost;
+                StartDate = startDate,
+                EndDate = endDate
+            };
 
-                reportItems.Add(new MonthlyTrendModel
-                {
-                    MonthName = monthName,
-                    MonthNumber = month,
-                    Revenue = revenue,
-                    Cost = cost,
-                    Profit = profit,
-                    OrdersCount = new Random(month + 12).Next(100, 500)
-                });
-            }
+            // 可以在这里添加更多的统计逻辑
+            // 目前使用现有的Model类，后续可以创建专门的统计Model
+            
+            return summary;
+        }
 
-            return reportItems;
+        /// <summary>
+        /// 获取当前年份的销售报表
+        /// </summary>
+        public List<MonthlySalesData> GetCurrentYearSales()
+        {
+            return GetMonthlySalesData(DateTime.Now.Year);
+        }
+
+        /// <summary>
+        /// 获取最近N天的销售统计
+        /// </summary>
+        public SalesReportModel GetRecentSales(int days = 30)
+        {
+            var endDate = DateTime.Now;
+            var startDate = endDate.AddDays(-days);
+            return GetSalesSummary(startDate, endDate);
         }
     }
 }

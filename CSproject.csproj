@@ -12,6 +12,8 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <GenerateResourceMSBuildArchitecture>CurrentArchitecture</GenerateResourceMSBuildArchitecture>
+    <GenerateResourceMSBuildRuntime>CurrentRuntime</GenerateResourceMSBuildRuntime>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -117,6 +119,30 @@
     <Compile Include="UI\Forms\SalesReportForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="UI\Forms\SalesOrderListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Forms\SalesOrderListForm.Designer.cs">
+      <DependentUpon>SalesOrderListForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Forms\SalesOrderDetailForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Forms\SalesOrderDetailForm.Designer.cs">
+      <DependentUpon>SalesOrderDetailForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Forms\SalesOrderCreateForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Forms\SalesOrderCreateForm.Designer.cs">
+      <DependentUpon>SalesOrderCreateForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\Forms\ShipmentManagementForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Forms\ShipmentManagementForm.Designer.cs">
+      <DependentUpon>ShipmentManagementForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\Forms\PurchaseReportForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -151,6 +177,18 @@
     </Compile>
     <EmbeddedResource Include="UI\Forms\ReportsMainForm.resx">
       <DependentUpon>ReportsMainForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Forms\SalesOrderListForm.resx">
+      <DependentUpon>SalesOrderListForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Forms\SalesOrderDetailForm.resx">
+      <DependentUpon>SalesOrderDetailForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Forms\SalesOrderCreateForm.resx">
+      <DependentUpon>SalesOrderCreateForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Forms\ShipmentManagementForm.resx">
+      <DependentUpon>ShipmentManagementForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -191,6 +229,16 @@
     <Compile Include="UI\Forms\OrderDetailsForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Business\Models\SalesOrder.cs" />
+    <Compile Include="Business\Models\SalesOrderItem.cs" />
+    <Compile Include="Business\Services\SalesOrderService.cs" />
+    <Compile Include="Data\Repositories\SalesOrderRepository.cs" />
+    <Compile Include="Data\Repositories\CustomerRepository.cs" />
+    <Compile Include="Business\Models\Customer.cs" />
+    <Compile Include="Business\Models\InventoryModel.cs" />
+    <Compile Include="Business\Models\SalesOrderDetailModel.cs" />
+    <Compile Include="Business\Models\SalesOrderModel.cs" />
+    <Compile Include="Business\Services\CustomerService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
