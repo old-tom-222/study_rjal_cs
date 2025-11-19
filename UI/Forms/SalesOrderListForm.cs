@@ -131,9 +131,7 @@ namespace CSproject.UI.Forms
                 // 获取销售订单列表（使用服务的过滤功能）
                 List<SalesOrder> orders = _orderService.GetSalesOrders(orderNumber, null, status);
                 
-                // 显示诊断信息（临时）
-                string diagMsg = $"诊断信息：\n数据库连接: {(connectionOk ? "成功" : "失败")}\n数据库获取订单数: {orders.Count}\n日期范围: {dtpStartDate.Value.Date} 到 {dtpEndDate.Value.Date}";
-                MessageBox.Show(diagMsg, "诊断", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // 移除诊断信息弹窗
                 
                 // 根据日期范围筛选（修改为包含结束日期的完整24小时）
                 DateTime startDate = dtpStartDate.Value.Date;

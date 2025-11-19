@@ -2,6 +2,7 @@ using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using CSproject.Business.Services;
 using CSproject.Business.Models;
 
@@ -139,10 +140,63 @@ namespace CSproject.UI.Forms
             }
         }
 
-        private void BtnLoadProductSalesClick(object sender, EventArgs e)
+        /// <summary>
+        /// 加载产品销售报表按钮点击事件
+        /// </summary>
+        private async void BtnLoadProductSalesClick(object sender, EventArgs e)
         {
-            // Simple implementation for now
-            MessageBox.Show("正在加载产品销售报表...");
+            Button clickedButton = sender as Button;
+            // 禁用按钮防止重复点击
+            if (clickedButton != null) clickedButton.Enabled = false;
+            try
+            {
+                // 异步加载产品销售报表
+                await Task.Run(() => LoadProductSales());
+            }
+            finally
+            {
+                // 恢复按钮状态
+                if (clickedButton != null) clickedButton.Enabled = true;
+            }
+        }
+
+        /// <summary>
+        /// 加载产品销售报表数据
+        /// </summary>
+        private void LoadProductSales()
+        {
+            try
+            {
+                // 设置等待光标（在UI线程上）
+                Invoke((Action)(() => Cursor = Cursors.WaitCursor));
+
+                // 获取日期范围
+                DateTime startDate = dtpProductSalesStart.Value.Date;
+                DateTime endDate = dtpProductSalesEnd.Value.Date.AddDays(1).AddSeconds(-1); // 包含结束日期的23:59:59
+
+                // 调用服务获取数据
+                var reportData = _salesReportService.GetProductSalesReport(startDate, endDate);
+
+                // 绑定到DataGridView（在UI线程上）
+                Invoke((Action)(() => 
+                {
+                    dgvProductSales.DataSource = reportData;
+                    // 更新统计信息
+                    UpdateProductSalesStatistics(reportData);
+                }));
+            }
+            catch (Exception ex)
+            {
+                // 在UI线程上显示错误
+                Invoke((Action)(() => 
+                    MessageBox.Show($"加载产品销售报表失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                ));
+            }
+            finally
+            {
+                // 恢复光标（在UI线程上）
+                Invoke((Action)(() => Cursor = Cursors.Default));
+            }
         }
 
         private void BtnLoadDailySalesClick(object sender, EventArgs e)
@@ -151,10 +205,24 @@ namespace CSproject.UI.Forms
             MessageBox.Show("正在加载日销售报表...");
         }
 
-        private void BtnLoadTrendReportClick(object sender, EventArgs e)
+        /// <summary>
+        /// 加载销售趋势报表按钮点击事件
+        /// </summary>
+        private async void BtnLoadTrendReportClick(object sender, EventArgs e)
         {
-            // Simple implementation for now
-            MessageBox.Show("正在加载销售趋势报表...");
+            Button clickedButton = sender as Button;
+            // 禁用按钮防止重复点击
+            if (clickedButton != null) clickedButton.Enabled = false;
+            try
+            {
+                // 异步加载销售趋势报表
+                await Task.Run(() => LoadSalesTrendReport());
+            }
+            finally
+            {
+                // 恢复按钮状态
+                if (clickedButton != null) clickedButton.Enabled = true;
+            }
         }
 
         private void BtnExportProductSalesClick(object sender, EventArgs e)
@@ -220,24 +288,37 @@ namespace CSproject.UI.Forms
         {
             try
             {
+                // 设置等待光标（在UI线程上）
+                Invoke((Action)(() => Cursor = Cursors.WaitCursor));
+
                 // 添加空引用检查
-                if (dtpTrendStart == null || dtpTrendEnd == null || cmbTrendGranularity == null || dgvSalesTrend == null)
-                {
-                    MessageBox.Show("销售趋势报表相关控件未正确初始化", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                bool hasError = false;
+                Invoke((Action)(() => {
+                    if (dtpTrendStart == null || dtpTrendEnd == null || cmbTrendGranularity == null || dgvSalesTrend == null)
+                    {
+                        MessageBox.Show("销售趋势报表相关控件未正确初始化", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        hasError = true;
+                    }
+                }));
+                
+                if (hasError)
                     return;
-                }
                 
-                Cursor = Cursors.WaitCursor;
+                // 获取日期范围和粒度参数
+                DateTime startDate = DateTime.MinValue;
+                DateTime endDate = DateTime.MaxValue;
+                int granularity = 2; // 默认值为月
                 
-                // 获取日期范围和粒度
-                var startDate = dtpTrendStart.Value;
-                var endDate = dtpTrendEnd.Value;
-                // 安全地获取粒度值，避免SelectedIndex错误
-                var granularity = (cmbTrendGranularity.Items.Count > 0 && cmbTrendGranularity.SelectedIndex >= 0) ? cmbTrendGranularity.SelectedIndex : 2; // 默认值为月
-                
-                // 获取销售趋势数据
+                Invoke((Action)(() => {
+                    startDate = dtpTrendStart.Value.Date;
+                    endDate = dtpTrendEnd.Value.Date.AddDays(1).AddSeconds(-1); // 包含结束日期的23:59:59
+                    // 安全地获取粒度值，避免SelectedIndex错误
+                    granularity = (cmbTrendGranularity.Items.Count > 0 && cmbTrendGranularity.SelectedIndex >= 0) ? cmbTrendGranularity.SelectedIndex : 2;
+                }));
+
+                // 调用服务获取数据
                 var trendData = _salesReportService.GetSalesTrendReport(startDate, endDate, granularity);
-                
+
                 // 创建匹配数据网格列名的匿名类型列表（使用英文属性名匹配DataPropertyName）
                 var displayData = trendData.Select(item => new
                 {
@@ -247,20 +328,25 @@ namespace CSproject.UI.Forms
                     OrderCount = item.OrdersCount, // 匹配OrderCount列
                     YoYGrowth = 0 // 匹配YoYGrowth列
                 }).ToList();
-                
-                // 设置数据源
-                dgvSalesTrend.DataSource = displayData;
-                
-                // 更新统计信息
-                UpdateTrendStatistics(trendData);
+
+                // 设置数据源和更新统计信息（在UI线程上）
+                Invoke((Action)(() => 
+                {
+                    dgvSalesTrend.DataSource = displayData;
+                    UpdateTrendStatistics(trendData);
+                }));
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"加载销售趋势报表失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // 在UI线程上显示错误
+                Invoke((Action)(() => 
+                    MessageBox.Show($"加载销售趋势报表失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error)
+                ));
             }
             finally
             {
-                Cursor = Cursors.Default;
+                // 恢复光标（在UI线程上）
+                Invoke((Action)(() => Cursor = Cursors.Default));
             }
         }
 

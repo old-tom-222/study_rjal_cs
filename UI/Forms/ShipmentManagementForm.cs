@@ -112,52 +112,198 @@ namespace CSproject.UI.Forms
             dgvPendingShipments.CellContentClick += dgvPendingShipments_CellContentClick;
         }
 
-        // 加载待发货订单
-        private void LoadPendingShipmentOrders()
+        /// <summary>
+        /// 加载待发货订单数据
+        /// </summary>
+        private async void LoadPendingShipmentOrders()
         {
             try
             {
-                // 获取所有已审核但未发货的订单
-                var orders = _salesOrderService.GetSalesOrdersByStatus("已审核");
+                // 禁用刷新按钮防止重复点击
+                btnRefresh.Enabled = false;
+                // 显示等待光标
+                Cursor = Cursors.WaitCursor;
                 
-                // 创建显示数据的列表
-                var displayData = orders.Select(o => new
+                // 异步加载数据，避免阻塞UI
+                var displayData = await Task.Run(() => {
+                        // 获取所有已审核但未发货的订单
+                        var orders = _salesOrderService.GetSalesOrdersByStatus("已审核");
+                        
+                        // 创建显示数据的列表
+                        return orders.Select(o => new
+                        {
+                            OrderId = o.OrderId,
+                            OrderNumber = o.OrderNumber,
+                            CustomerName = o.CustomerName ?? "未知客户",
+                            OrderDate = o.OrderDate,
+                            TotalAmount = o.TotalAmount,
+                            ProductCount = o.OrderItems.Count,
+                            CreatedAt = o.CreatedDate
+                        }).ToList();
+                    });
+                
+                // 在UI线程上更新DataGridView
+                if (this.InvokeRequired)
                 {
-                    OrderId = o.OrderId,
-                    OrderNumber = o.OrderNumber,
-                    CustomerName = o.CustomerName ?? "未知客户",
-                    OrderDate = o.OrderDate,
-                    TotalAmount = o.TotalAmount,
-                    ProductCount = o.OrderItems.Count,
-                    CreatedAt = o.CreatedDate
-                }).ToList();
-
-                dgvPendingShipments.DataSource = displayData;
-                UpdateStatistics();
+                    this.Invoke(new Action(() => dgvPendingShipments.DataSource = displayData));
+                }
+                else
+                {
+                    dgvPendingShipments.DataSource = displayData;
+                }
+                
+                // 更新统计信息
+                UpdateStatistics(displayData);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("加载订单失败: " + ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"加载订单失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // 确保统计信息显示为0
+                ResetStatistics();
+            }
+            finally
+            {
+                // 恢复按钮状态和光标
+                btnRefresh.Enabled = true;
+                Cursor = Cursors.Default;
             }
         }
 
-        // 更新统计信息
-        private void UpdateStatistics()
+        /// <summary>
+        /// 更新统计信息
+        /// </summary>
+        private void UpdateStatistics(object displayDataList)
         {
-            var displayData = dgvPendingShipments.DataSource as List<dynamic>;
-            if (displayData != null && displayData.Count > 0)
+            try
             {
-                int totalOrders = displayData.Count;
-                decimal totalAmount = displayData.Sum(o => o.TotalAmount);
-                int totalProducts = displayData.Sum(o => o.ProductCount);
-
-                lblTotalOrders.Text = $"待发货订单总数: {totalOrders}";
-                lblTotalAmount.Text = $"待发货总金额: {totalAmount:N2}";
-                lblTotalProducts.Text = $"待发货商品种类: {totalProducts}";
+                // 确保在UI线程上更新控件
+                if (this.InvokeRequired)
+                {
+                    // 传递数据给Invoke方法时使用对象数组
+                    this.Invoke(new Action<object>(UpdateStatisticsWorker), displayDataList);
+                }
+                else
+                {
+                    UpdateStatisticsWorker(displayDataList);
+                }
+            }
+            catch (Exception ex)
+            {
+                // 发生异常时重置统计信息
+                ResetStatistics();
+                
+                // 记录异常
+                Console.WriteLine($"更新待发货订单统计信息失败: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// 统计信息更新工作方法
+        /// </summary>
+        private void UpdateStatisticsWorker(object displayDataList)
+        {
+            // 直接在UI线程上更新统计信息
+            UpdateStatisticsOnUI(displayDataList);
+        }
+        
+        /// <summary>
+        /// 在UI线程上更新统计信息
+        /// </summary>
+        private void UpdateStatisticsOnUI(object dataSource)
+        {
+            try
+            {
+                // 检查数据源是否有效
+                if (dataSource == null)
+                {
+                    ResetStatistics();
+                    return;
+                }
+                
+                // 尝试将数据源转换为列表
+                var displayData = dataSource as System.Collections.IEnumerable;
+                if (displayData == null)
+                {
+                    ResetStatistics();
+                    return;
+                }
+                
+                // 转换为列表并计算计数
+                var items = displayData.Cast<object>().ToList();
+                if (items.Count == 0)
+                {
+                    ResetStatistics();
+                    return;
+                }
+                
+                // 更新订单总数
+                lblTotalOrders.Text = "待发货订单总数: " + items.Count;
+                
+                // 计算总金额和产品数量
+                decimal totalAmount = 0;
+                int productCount = 0;
+                
+                // 使用反射来访问属性值，避免dynamic类型问题
+                foreach (var item in items)
+                {
+                    try
+                    {
+                        // 获取TotalAmount属性
+                        var amountProperty = item.GetType().GetProperty("TotalAmount");
+                        if (amountProperty != null)
+                        {
+                            var amountValue = amountProperty.GetValue(item);
+                            if (amountValue != null && amountValue is decimal)
+                            {
+                                totalAmount += (decimal)amountValue;
+                            }
+                        }
+                        
+                        // 获取ProductCount属性
+                        var countProperty = item.GetType().GetProperty("ProductCount");
+                        if (countProperty != null)
+                        {
+                            var countValue = countProperty.GetValue(item);
+                            if (countValue != null && countValue is int)
+                            {
+                                productCount += (int)countValue;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // 单个项目处理失败时继续处理其他项目
+                        Console.WriteLine($"处理订单项统计信息时出错: {ex.Message}");
+                    }
+                }
+                
+                // 更新显示
+                lblTotalAmount.Text = "待发货总金额: " + totalAmount.ToString("F2");
+                lblTotalProducts.Text = "待发货商品种类: " + productCount;
+            }
+            catch (Exception ex)
+            {
+                // 发生异常时重置统计信息
+                ResetStatistics();
+                Console.WriteLine($"更新统计显示时出错: {ex.Message}");
+            }
+        }
+        
+        /// <summary>
+        /// 重置统计信息为0
+        /// </summary>
+        private void ResetStatistics()
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke((Action)(() => {
+                    lblTotalOrders.Text = "待发货订单总数: 0";
+                    lblTotalAmount.Text = "待发货总金额: 0.00";
+                    lblTotalProducts.Text = "待发货商品种类: 0";
+                }));
             }
             else
             {
-                // 当没有数据时显示默认值
                 lblTotalOrders.Text = "待发货订单总数: 0";
                 lblTotalAmount.Text = "待发货总金额: 0.00";
                 lblTotalProducts.Text = "待发货商品种类: 0";
@@ -220,7 +366,7 @@ namespace CSproject.UI.Forms
 
                 // 绑定数据源 - 使用空列表而不是null，确保统计计算正确
                 dgvPendingShipments.DataSource = displayData;
-                UpdateStatistics();
+                UpdateStatistics(displayData);
             }
             catch (Exception ex)
             {
@@ -250,21 +396,30 @@ namespace CSproject.UI.Forms
             // 确保点击的是有效行
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
             {
-                var displayData = dgvPendingShipments.DataSource as List<dynamic>;
-                if (displayData != null && e.RowIndex < displayData.Count)
+                try
                 {
-                    int orderId = displayData[e.RowIndex].OrderId;
-
-                    // 处理查看详情按钮
-                    if (e.ColumnIndex == dgvPendingShipments.Columns["ViewDetail"].Index)
+                    // 直接从DataGridView行获取OrderId值，避免类型转换问题
+                    DataGridViewRow row = dgvPendingShipments.Rows[e.RowIndex];
+                    int orderId = 0;
+                    
+                    // 尝试从第一列（OrderId列）获取值
+                    if (row.Cells[0].Value != null && int.TryParse(row.Cells[0].Value.ToString(), out orderId))
                     {
-                        ShowOrderDetail(orderId);
+                        // 处理查看详情按钮
+                        if (e.ColumnIndex == dgvPendingShipments.Columns["ViewDetail"].Index)
+                        {
+                            ShowOrderDetail(orderId);
+                        }
+                        // 处理发货按钮
+                        else if (e.ColumnIndex == dgvPendingShipments.Columns["Ship"].Index)
+                        {
+                            ProcessShipment(orderId);
+                        }
                     }
-                    // 处理发货按钮
-                    else if (e.ColumnIndex == dgvPendingShipments.Columns["Ship"].Index)
-                    {
-                        ProcessShipment(orderId);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("处理按钮点击失败: " + ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
