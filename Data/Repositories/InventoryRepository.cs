@@ -160,7 +160,6 @@ namespace CSproject.Data.Repositories
             }
             return result;
         }
-<<<<<<< HEAD
 
         // 更新库存数量（用于采购订单完成后自动更新库存）
         public void UpdateInventory(int productId, int warehouseId, int quantityChange)
@@ -239,7 +238,6 @@ namespace CSproject.Data.Repositories
                 
                 int affectedRows = cmd.ExecuteNonQuery();
                 return affectedRows > 0;
-            }
             }
         }
     }

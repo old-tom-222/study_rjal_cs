@@ -1,5 +1,9 @@
 using System;
 using System.Windows.Forms;
+using System.Collections.Generic;
+using System.Linq;
+using CSproject.Business.Services;
+using CSproject.Business.Models;
 
 namespace CSproject.UI.Forms
 {
@@ -42,11 +46,6 @@ namespace CSproject.UI.Forms
                 dtpProductSalesStart.Value = DateTime.Now.AddDays(-30);
             if (dtpProductSalesEnd != null)
                 dtpProductSalesEnd.Value = DateTime.Now;
-            // 兼容旧版本的每日销售报表日期选择器
-            if (dtpDailySalesStart != null)
-                dtpDailySalesStart.Value = DateTime.Now.AddDays(-30);
-            if (dtpDailySalesEnd != null)
-                dtpDailySalesEnd.Value = DateTime.Now;
             // 趋势图表日期选择器
             if (dtpTrendStart != null)
                 dtpTrendStart.Value = DateTime.Now.AddMonths(-3);
@@ -138,7 +137,6 @@ namespace CSproject.UI.Forms
                     new DataGridViewTextBoxColumn { Name = "AveragePrice", HeaderText = "平均单价", DataPropertyName = "AveragePrice", Width = 100 }
                 );
             }
->>>>>>> 0206b43 (Initial commit of CSproject)
         }
 
         private void BtnLoadProductSalesClick(object sender, EventArgs e)
@@ -147,15 +145,11 @@ namespace CSproject.UI.Forms
             MessageBox.Show("正在加载产品销售报表...");
         }
 
-<<<<<<< HEAD
         private void BtnLoadDailySalesClick(object sender, EventArgs e)
         {
             // Simple implementation for now
             MessageBox.Show("正在加载日销售报表...");
         }
-=======
-        // 已移除每日销售报表加载按钮的事件处理方法
->>>>>>> 0206b43 (Initial commit of CSproject)
 
         private void BtnLoadTrendReportClick(object sender, EventArgs e)
         {
@@ -169,23 +163,14 @@ namespace CSproject.UI.Forms
             MessageBox.Show("正在导出产品销售报表...");
         }
 
-<<<<<<< HEAD
         private void BtnExportDailySalesClick(object sender, EventArgs e)
         {
             // Simple implementation for now
             MessageBox.Show("正在导出日销售报表...");
         }
-=======
-        // 每日销售报表导出方法已移除
->>>>>>> 0206b43 (Initial commit of CSproject)
 
         private void BtnExportTrendReportClick(object sender, EventArgs e)
         {
-<<<<<<< HEAD
-            // Simple implementation for now
-            MessageBox.Show("正在导出销售趋势报表...");
-        }
-=======
             try
             {
                 // 添加空引用检查
@@ -485,6 +470,5 @@ namespace CSproject.UI.Forms
             lblProductRankTotalSales.Text = $"{totalSales:C}";
             lblProductRankCount.Text = productCount.ToString();
         }
->>>>>>> 0206b43 (Initial commit of CSproject)
     }
 }

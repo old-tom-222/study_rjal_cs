@@ -1,7 +1,6 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using CSproject.UI.Forms;
 using CSproject.Data.Repositories;
 
 
@@ -61,7 +60,7 @@ namespace CSproject.UI.Forms
                 _purchaseOrderListForm.LoadPurchaseOrders();
             }
         }
-        }
+
 
         // 销售订单 - 订单列表
         private void menuSalesOrderList_Click(object sender, EventArgs e)
