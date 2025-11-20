@@ -143,13 +143,20 @@ DROP TABLE IF EXISTS user;
      product_id INT NOT NULL, 
      warehouse_id INT NOT NULL, 
      change_qty INT NOT NULL, 
-     type VARCHAR(20) NOT NULL, 
-     reference VARCHAR(50) DEFAULT NULL, 
-     remark TEXT DEFAULT NULL, 
+     type VARCHAR(50) NOT NULL DEFAULT 'adjust', 
+     reference VARCHAR(100) NULL, 
+     remark TEXT NULL, 
      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
-     FOREIGN KEY(product_id) REFERENCES product(id), 
-     FOREIGN KEY(warehouse_id) REFERENCES warehouse(id) 
+     FOREIGN KEY (product_id) REFERENCES product(id) ON DELETE CASCADE, 
+     FOREIGN KEY (warehouse_id) REFERENCES warehouse(id) ON DELETE CASCADE 
  ); 
+
+ -- 添加索引以提高查询性能
+ CREATE INDEX idx_product_id ON inventory_transaction(product_id);
+ CREATE INDEX idx_warehouse_id ON inventory_transaction(warehouse_id);
+ CREATE INDEX idx_type ON inventory_transaction(type);
+ CREATE INDEX idx_created_at ON inventory_transaction(created_at);
+ CREATE INDEX idx_reference ON inventory_transaction(reference);
 
 -- 提交事务
 COMMIT;
