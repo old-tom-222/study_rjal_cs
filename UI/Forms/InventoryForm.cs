@@ -18,6 +18,13 @@ namespace CSproject.UI.Forms
         {
             SetupInventoryGrid();
             LoadAllInventory();
+            SetupTransactionGrid(); // 初始化库存流水数据网格
+            
+            // 设置默认时间范围并自动加载库存流水数据，与报表分析模块保持一致
+            chkUseTimeRange.Checked = true;
+            dtFrom.Value = DateTime.Now.AddDays(-30);
+            dtTo.Value = DateTime.Now;
+            BtnTxnQueryClick(null, null); // 自动加载默认时间范围内的库存流水数据
         }
 
         private void SetupInventoryGrid()
