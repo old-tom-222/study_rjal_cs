@@ -198,14 +198,32 @@ namespace CSproject.UI.Forms
         {
             // 隐藏销售管理子导航面板
             panelSalesSubMenu.Visible = false;
-            ShowPlaceholder("财务管理");
+            // 加载财务管理界面
+            this.panelContent.Controls.Clear();
+            var financeForm = new FinancialManagementForm
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+            this.panelContent.Controls.Add(financeForm);
+            financeForm.Show();
         }
 
         private void BtnMenuBasicClick(object sender, EventArgs e)
         {
             // 隐藏销售管理子导航面板
             panelSalesSubMenu.Visible = false;
-            ShowPlaceholder("基础数据");
+            // 加载基础数据界面
+            this.panelContent.Controls.Clear();
+            var masterDataForm = new MasterDataForm
+            {
+                TopLevel = false,
+                FormBorderStyle = FormBorderStyle.None,
+                Dock = DockStyle.Fill
+            };
+            this.panelContent.Controls.Add(masterDataForm);
+            masterDataForm.Show();
         }
 
         private void btnSales_Click(object sender, EventArgs e)

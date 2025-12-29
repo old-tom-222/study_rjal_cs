@@ -17,7 +17,6 @@ namespace CSproject.Data.Repositories
             string sql = @"
                 SELECT 
                     t.product_id,
-                    p.sku,
                     p.name AS product_name,
                     SUM(ABS(t.change_qty)) AS quantity_sold,
                     COALESCE(SUM(oi.unit_price * ABS(t.change_qty)), 0) AS total_revenue,
@@ -29,7 +28,7 @@ namespace CSproject.Data.Repositories
                 LEFT JOIN sales_order o ON o.id = oi.order_id AND o.order_no = t.reference
                 WHERE t.type = 'sales'
                   AND t.created_at BETWEEN @startDate AND @endDate
-                GROUP BY t.product_id, p.sku, p.name, p.category_id
+                GROUP BY t.product_id, p.name, p.category_id
                 ORDER BY total_revenue DESC";
 
             using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
@@ -49,7 +48,7 @@ namespace CSproject.Data.Repositories
                         var reportItem = new SalesReportModel
                         {
                             ProductId = Convert.ToInt32(reader["product_id"]),
-                            ProductSku = reader["sku"].ToString(),
+                            ProductSku = string.Empty, // product表中不存在sku字段
                             ProductName = reader["product_name"].ToString(),
                             QuantitySold = quantitySold,
                             TotalRevenue = totalRevenue,
@@ -286,7 +285,7 @@ namespace CSproject.Data.Repositories
         public List<ProductRankingModel> GetProductRankings(DateTime startDate, DateTime endDate, int topN = 10)
         {
             var result = new List<ProductRankingModel>();
-            string sql = @"SELECT p.id AS product_id, p.name AS product_name, p.sku AS product_sku,
+            string sql = @"SELECT p.id AS product_id, p.name AS product_name,
                                    SUM(oi.quantity) AS quantity_sold,
                                    SUM(oi.unit_price * oi.quantity) AS sales_amount
                             FROM sales_order_item oi
@@ -294,7 +293,7 @@ namespace CSproject.Data.Repositories
                             INNER JOIN product p ON p.id = oi.product_id
                             WHERE o.order_date BETWEEN @startDate AND @endDate
                               AND o.status IN ('已审核', '已发货')
-                            GROUP BY p.id, p.name, p.sku
+                            GROUP BY p.id, p.name
                             ORDER BY quantity_sold DESC
                             LIMIT @topN";
             
@@ -316,7 +315,7 @@ namespace CSproject.Data.Repositories
                             Rank = rank++,
                             ProductId = Convert.ToInt32(reader["product_id"]),
                             ProductName = reader["product_name"].ToString(),
-                            ProductSku = reader["product_sku"].ToString(),
+                            ProductSku = string.Empty, // product表中不存在sku字段
                             QuantitySold = Convert.ToInt32(reader["quantity_sold"]),
                             SalesAmount = Convert.ToDecimal(reader["sales_amount"])
                         });

@@ -109,13 +109,12 @@ namespace CSproject.Data.Repositories
         {
             var result = new List<SalesOrderItem>();
             string sql = @"SELECT oi.id AS order_item_id, oi.order_id, oi.product_id, 
-                                   p.sku AS product_sku, p.name AS product_name,
+                                   p.name AS product_name,
                                    oi.unit_price, oi.quantity
                             FROM sales_order_item oi
                             INNER JOIN product p ON p.id = oi.product_id
                             WHERE oi.order_id = @orderId
                             ORDER BY oi.id";
-            
             using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
             using (var cmd = new MySqlCommand(sql, conn))
             {
@@ -131,7 +130,7 @@ namespace CSproject.Data.Repositories
                             OrderItemId = Convert.ToInt32(reader["order_item_id"]),
                             OrderId = Convert.ToInt32(reader["order_id"]),
                             ProductId = Convert.ToInt32(reader["product_id"]),
-                            ProductSku = reader["product_sku"].ToString(),
+                            ProductSku = string.Empty, // product表中不存在sku字段
                             ProductName = reader["product_name"].ToString(),
                             UnitPrice = Convert.ToDecimal(reader["unit_price"]),
                             Quantity = Convert.ToInt32(reader["quantity"]),

@@ -7,9 +7,9 @@ namespace CSproject.Data.Helpers
     public static class DbHelper
     {
         /// <summary>
-        /// 静态构造函数，确保数据库表已创建
+        /// 显式初始化数据库，由调用方决定何时执行
         /// </summary>
-        static DbHelper()
+        public static void InitializeDatabaseIfNeeded()
         {
             InitializeDatabase();
         }
@@ -25,6 +25,54 @@ namespace CSproject.Data.Helpers
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
+                    
+                    // 检查并创建product_category表
+                    string createProductCategoryTableSql = @"
+                        CREATE TABLE IF NOT EXISTS product_category (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            name VARCHAR(100) NOT NULL,
+                            parent_id INT NULL,
+                            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                            FOREIGN KEY (parent_id) REFERENCES product_category(id) ON DELETE SET NULL
+                        );
+                    ";
+                    
+                    using (MySqlCommand command = new MySqlCommand(createProductCategoryTableSql, connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+                    
+                    // 检查并添加缺失的列（MySQL 5.7不支持IF NOT EXISTS语法）
+                    string[] columnsToAdd = {
+                        "created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP",
+                        "updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP",
+                        "status VARCHAR(50) NOT NULL DEFAULT '1'"
+                    };
+                    
+                    foreach (string columnDefinition in columnsToAdd)
+                    {
+                        string columnName = columnDefinition.Split(' ')[0];
+                        
+                        // 检查列是否存在
+                        string checkColumnSql = $"SHOW COLUMNS FROM product_category LIKE '{columnName}';";
+                        using (MySqlCommand checkCmd = new MySqlCommand(checkColumnSql, connection))
+                        {
+                            using (MySqlDataReader reader = checkCmd.ExecuteReader())
+                            {
+                                if (!reader.HasRows)
+                                {
+                                    reader.Close();
+                                    // 列不存在，添加它
+                                    string addColumnSql = $"ALTER TABLE product_category ADD COLUMN {columnDefinition};";
+                                    using (MySqlCommand addCmd = new MySqlCommand(addColumnSql, connection))
+                                    {
+                                        addCmd.ExecuteNonQuery();
+                                    }
+                                }
+                            }
+                        }
+                    }
                     
                     // 检查并创建inventory_transaction表
                     string createTableSql = @"
@@ -105,6 +153,12 @@ namespace CSproject.Data.Helpers
             if (string.IsNullOrEmpty(connectionString))
             {
                 throw new ConfigurationErrorsException("数据库连接字符串为空");
+            }
+            
+            // 确保连接字符串包含字符集设置
+            if (!connectionString.Contains("charset="))
+            {
+                connectionString += ";charset=utf8mb4";
             }
             
             // 确保连接字符串包含连接超时设置

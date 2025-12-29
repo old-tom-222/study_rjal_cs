@@ -114,5 +114,31 @@ namespace CSproject.Business.Services
             
             return total;
         }
+
+        /// <summary>
+        /// 更新客户信息
+        /// </summary>
+        public bool UpdateCustomer(Customer customer)
+        {
+            try
+            {
+                // 业务逻辑验证
+                if (string.IsNullOrWhiteSpace(customer.CustomerName))
+                {
+                    throw new ArgumentException("客户名称不能为空");
+                }
+
+                // 设置最后更新时间
+                customer.LastUpdated = DateTime.Now;
+
+                // 调用数据访问层更新客户
+                return _customerRepo.UpdateCustomer(customer);
+            }
+            catch (Exception ex)
+            {
+                // 记录错误并重新抛出
+                throw new Exception("更新客户失败: " + ex.Message, ex);
+            }
+        }
     }
 }

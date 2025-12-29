@@ -11,14 +11,12 @@ namespace CSproject.Data.Repositories
         public List<Customer> GetCustomers(string customerCode = null, string customerName = null, string status = null)
         {
             var result = new List<Customer>();
-            string sql = @"SELECT id, name, contact_person, phone AS ContactPhone, credit_limit, status
+            string sql = @"SELECT id AS CustomerId, name AS CustomerName, contact_person, phone AS ContactPhone, credit_limit, status
                             FROM customer
                             WHERE (@customerName IS NULL OR name LIKE @customerName)
                               AND (@status IS NULL OR status = @status)
                             ORDER BY name";
-            
-
-            
+                        
             try
             {
                 using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
@@ -53,8 +51,8 @@ namespace CSproject.Data.Repositories
                                 
                                 result.Add(new Customer
                                 {
-                                    CustomerId = Convert.ToInt32(reader["id"]),
-                                    CustomerName = reader["name"].ToString(),
+                                    CustomerId = Convert.ToInt32(reader["CustomerId"]),
+                                    CustomerName = reader["CustomerName"].ToString(),
                                     ContactPerson = reader.IsDBNull(reader.GetOrdinal("contact_person")) ? null : reader["contact_person"].ToString(),
                                     ContactPhone = reader.IsDBNull(reader.GetOrdinal("ContactPhone")) ? null : reader["ContactPhone"].ToString(),
                                     Status = reader.IsDBNull(reader.GetOrdinal("status")) ? "" : reader["status"].ToString(),
@@ -71,7 +69,6 @@ namespace CSproject.Data.Repositories
                                     Notes = null
                                 });
                             }
-
                         }
                     }
                 }
@@ -90,7 +87,7 @@ namespace CSproject.Data.Repositories
         public Customer GetCustomerById(int customerId)
         {
             Customer customer = null;
-            string sql = @"SELECT id, name, contact_person, phone AS ContactPhone, credit_limit, status
+            string sql = @"SELECT id AS CustomerId, name AS CustomerName, contact_person, phone AS ContactPhone, credit_limit, status
                             FROM customer
                             WHERE id = @customerId";
             
@@ -103,11 +100,11 @@ namespace CSproject.Data.Repositories
                 using (var reader = cmd.ExecuteReader())
                 {
                     if (reader.Read())
-                    {
-                        customer = new Customer
                         {
-                            CustomerId = Convert.ToInt32(reader["id"]),
-                            CustomerName = reader["name"].ToString(),
+                            customer = new Customer
+                            {
+                                CustomerId = Convert.ToInt32(reader["CustomerId"]),
+                                CustomerName = reader["CustomerName"].ToString(),
                             ContactPerson = reader.IsDBNull(reader.GetOrdinal("contact_person")) ? null : reader["contact_person"].ToString(),
                             ContactPhone = reader.IsDBNull(reader.GetOrdinal("ContactPhone")) ? null : reader["ContactPhone"].ToString(),
                             Status = reader.IsDBNull(reader.GetOrdinal("status")) ? "" : reader["status"].ToString(),
@@ -158,6 +155,32 @@ namespace CSproject.Data.Repositories
 
                 // 执行并返回新插入的客户ID
                 return Convert.ToInt32(cmd.ExecuteScalar());
+            }
+        }
+
+        /// <summary>
+        /// 更新客户信息
+        /// </summary>
+        public bool UpdateCustomer(Customer customer)
+        {
+            string sql = @"UPDATE customer 
+                            SET name = @name, 
+                                contact_person = @contactPerson, 
+                                phone = @phone,
+                                status = @status
+                            WHERE id = @customerId";
+            
+            using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
+            using (var cmd = new MySqlCommand(sql, conn))
+            {
+                cmd.Parameters.AddWithValue("@name", string.IsNullOrEmpty(customer.CustomerName) ? DBNull.Value : (object)customer.CustomerName);
+                cmd.Parameters.AddWithValue("@contactPerson", string.IsNullOrEmpty(customer.ContactPerson) ? DBNull.Value : (object)customer.ContactPerson);
+                cmd.Parameters.AddWithValue("@phone", string.IsNullOrEmpty(customer.ContactPhone) ? DBNull.Value : (object)customer.ContactPhone);
+                cmd.Parameters.AddWithValue("@status", string.IsNullOrEmpty(customer.Status) ? "1" : customer.Status);
+                cmd.Parameters.AddWithValue("@customerId", customer.CustomerId);
+                
+                conn.Open();
+                return cmd.ExecuteNonQuery() > 0;
             }
         }
     }

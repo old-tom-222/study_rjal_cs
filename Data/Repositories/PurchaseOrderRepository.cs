@@ -86,7 +86,7 @@ namespace CSproject.Data.Repositories
             
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                string query = @"SELECT poi.id, p.name as product_name, p.sku, poi.quantity, poi.unit_price, 
+                string query = @"SELECT poi.id, p.name as product_name, poi.quantity, poi.unit_price, 
                                  (poi.quantity * poi.unit_price) as total_price 
                                  FROM purchase_order_item poi
                                  JOIN product p ON poi.product_id = p.id
@@ -230,13 +230,11 @@ namespace CSproject.Data.Repositories
             // 获取或创建默认分类
             int categoryId = FindOrCreateDefaultCategory(connection, transaction);
             
-            // 如果不存在，创建新产品，生成唯一SKU
-            string sku = GenerateUniqueSKU(productName);
-            string createQuery = "INSERT INTO product (name, sku, category_id) VALUES (@name, @sku, @categoryId)";
+            // 如果不存在，创建新产品
+            string createQuery = "INSERT INTO product (name, category_id) VALUES (@name, @categoryId)";
             using (MySqlCommand command = new MySqlCommand(createQuery, connection, transaction))
             {
                 command.Parameters.AddWithValue("@name", productName);
-                command.Parameters.AddWithValue("@sku", sku);
                 command.Parameters.AddWithValue("@categoryId", categoryId);
                 command.ExecuteNonQuery();
                 return Convert.ToInt32(command.LastInsertedId);

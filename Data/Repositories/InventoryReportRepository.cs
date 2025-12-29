@@ -17,13 +17,12 @@ namespace CSproject.Data.Repositories
             string sql = @"
                 SELECT 
                     i.product_id, 
-                    p.sku, 
                     p.name AS product_name,
                     i.warehouse_id,
                     w.name AS warehouse_name,
                     i.quantity AS current_quantity,
-                    p.safe_stock,
-                    COALESCE(p.reorder_quantity, 0) AS reorder_quantity,
+                    p.stock_qty AS safe_stock,
+                    COALESCE(p.stock_qty, 0) AS reorder_quantity,
                     COALESCE(AVG(pt.unit_cost), 0) AS average_cost,
                     MAX(t.created_at) AS last_stock_movement_date
                 FROM inventory i
@@ -32,7 +31,7 @@ namespace CSproject.Data.Repositories
                 LEFT JOIN inventory_transaction t ON t.product_id = i.product_id AND t.warehouse_id = i.warehouse_id
                 LEFT JOIN purchase_transaction pt ON pt.product_id = i.product_id
                 WHERE (@warehouseId IS NULL OR i.warehouse_id = @warehouseId)
-                GROUP BY i.product_id, i.warehouse_id, p.sku, p.name, w.name, i.quantity, p.safe_stock, p.reorder_quantity
+                GROUP BY i.product_id, i.warehouse_id, p.name, w.name, i.quantity, p.stock_qty
                 ORDER BY p.name, w.name";
 
             using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
@@ -47,7 +46,7 @@ namespace CSproject.Data.Repositories
                         var reportItem = new InventoryReportModel
                         {
                             ProductId = Convert.ToInt32(reader["product_id"]),
-                            ProductSku = reader["sku"].ToString(),
+                            ProductSku = string.Empty,
                             ProductName = reader["product_name"].ToString(),
                             CurrentQuantity = Convert.ToInt32(reader["current_quantity"]),
                             SafeStock = Convert.ToInt32(reader["safe_stock"]),
@@ -78,21 +77,20 @@ namespace CSproject.Data.Repositories
             string sql = @"
                 SELECT 
                     i.product_id, 
-                    p.sku, 
                     p.name AS product_name,
                     i.warehouse_id,
                     w.name AS warehouse_name,
                     i.quantity AS current_quantity,
-                    p.safe_stock,
-                    COALESCE(p.reorder_quantity, p.safe_stock) AS reorder_quantity,
+                    p.stock_qty AS safe_stock,
+                    COALESCE(p.stock_qty, 0) AS reorder_quantity,
                     COALESCE(AVG(pt.unit_cost), 0) AS average_cost
                 FROM inventory i
                 INNER JOIN product p ON p.id = i.product_id
                 INNER JOIN warehouse w ON w.id = i.warehouse_id
                 LEFT JOIN purchase_transaction pt ON pt.product_id = i.product_id
-                WHERE i.quantity <= COALESCE(p.reorder_quantity, p.safe_stock)
+                WHERE i.quantity <= p.stock_qty
                   AND (@warehouseId IS NULL OR i.warehouse_id = @warehouseId)
-                GROUP BY i.product_id, i.warehouse_id, p.sku, p.name, w.name, i.quantity, p.safe_stock, p.reorder_quantity
+                GROUP BY i.product_id, i.warehouse_id, p.name, w.name, i.quantity, p.stock_qty
                 ORDER BY i.quantity ASC";
 
             using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
@@ -107,7 +105,7 @@ namespace CSproject.Data.Repositories
                         var reportItem = new InventoryReportModel
                         {
                             ProductId = Convert.ToInt32(reader["product_id"]),
-                            ProductSku = reader["sku"].ToString(),
+                            ProductSku = string.Empty,
                             ProductName = reader["product_name"].ToString(),
                             CurrentQuantity = Convert.ToInt32(reader["current_quantity"]),
                             SafeStock = Convert.ToInt32(reader["safe_stock"]),

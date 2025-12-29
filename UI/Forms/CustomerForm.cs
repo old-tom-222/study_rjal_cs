@@ -9,12 +9,25 @@ namespace CSproject.UI.Forms
     {
         private readonly CustomerService _customerService;
         public Customer NewCustomer { get; private set; }
+        public Customer EditingCustomer { get; private set; }
+        private bool _isEditing = false;
 
         public CustomerForm()
     {
-        // 不调用InitializeComponent()，使用手动创建的InitializeControls方法
+        // 调用InitializeComponent()创建控件，然后调用InitializeControls设置默认值
         _customerService = new CustomerService();
+        InitializeComponent();
         InitializeControls();
+    }
+    
+    public CustomerForm(Customer customer)
+    {
+        _customerService = new CustomerService();
+        EditingCustomer = customer;
+        _isEditing = true;
+        InitializeComponent();
+        InitializeControls();
+        LoadCustomerData();
     }
 
         private void InitializeControls()
@@ -25,6 +38,28 @@ namespace CSproject.UI.Forms
             dtpLastUpdated.Value = DateTime.Now;
             dtpCreatedDate.Enabled = false;
             dtpLastUpdated.Enabled = false;
+        }
+        
+        private void LoadCustomerData()
+        {
+            if (EditingCustomer != null)
+            {
+                this.Text = "编辑客户";
+                txtCustomerCode.Text = EditingCustomer.CustomerCode;
+                txtCustomerName.Text = EditingCustomer.CustomerName;
+                txtContactPerson.Text = EditingCustomer.ContactPerson;
+                txtContactPhone.Text = EditingCustomer.ContactPhone;
+                txtEmail.Text = EditingCustomer.Email;
+                txtAddress.Text = EditingCustomer.Address;
+                txtCity.Text = EditingCustomer.City;
+                txtProvince.Text = EditingCustomer.Province;
+                txtPostalCode.Text = EditingCustomer.PostalCode;
+                txtCustomerType.Text = EditingCustomer.CustomerType;
+                txtStatus.Text = EditingCustomer.Status;
+                txtNotes.Text = EditingCustomer.Notes;
+                dtpCreatedDate.Value = EditingCustomer.CreatedDate;
+                dtpLastUpdated.Value = DateTime.Now;
+            }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -39,37 +74,62 @@ namespace CSproject.UI.Forms
 
             try
             {
-                // 创建客户对象
-                var customer = new Customer
+                if (_isEditing)
                 {
-                    CustomerCode = txtCustomerCode.Text.Trim(),
-                    CustomerName = txtCustomerName.Text.Trim(),
-                    ContactPerson = txtContactPerson.Text.Trim(),
-                    ContactPhone = txtContactPhone.Text.Trim(),
-                    Email = txtEmail.Text.Trim(),
-                    Address = txtAddress.Text.Trim(),
-                    City = txtCity.Text.Trim(),
-                    Province = txtProvince.Text.Trim(),
-                    PostalCode = txtPostalCode.Text.Trim(),
-                    CustomerType = txtCustomerType.Text.Trim(),
-                    Status = txtStatus.Text.Trim(),
-                    CreatedDate = DateTime.Now,
-                    LastUpdated = DateTime.Now,
-                    Notes = txtNotes.Text.Trim()
-                };
+                    // 更新现有客户
+                    EditingCustomer.CustomerCode = txtCustomerCode.Text.Trim();
+                    EditingCustomer.CustomerName = txtCustomerName.Text.Trim();
+                    EditingCustomer.ContactPerson = txtContactPerson.Text.Trim();
+                    EditingCustomer.ContactPhone = txtContactPhone.Text.Trim();
+                    EditingCustomer.Email = txtEmail.Text.Trim();
+                    EditingCustomer.Address = txtAddress.Text.Trim();
+                    EditingCustomer.City = txtCity.Text.Trim();
+                    EditingCustomer.Province = txtProvince.Text.Trim();
+                    EditingCustomer.PostalCode = txtPostalCode.Text.Trim();
+                    EditingCustomer.CustomerType = txtCustomerType.Text.Trim();
+                    EditingCustomer.Status = txtStatus.Text.Trim();
+                    EditingCustomer.LastUpdated = DateTime.Now;
+                    EditingCustomer.Notes = txtNotes.Text.Trim();
 
-                // 保存客户
-                int newCustomerId = _customerService.CreateCustomer(customer);
-                customer.CustomerId = newCustomerId;
-                NewCustomer = customer;
+                    _customerService.UpdateCustomer(EditingCustomer);
+                    MessageBox.Show("客户更新成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    // 创建新客户
+                    var customer = new Customer
+                    {
+                        CustomerCode = txtCustomerCode.Text.Trim(),
+                        CustomerName = txtCustomerName.Text.Trim(),
+                        ContactPerson = txtContactPerson.Text.Trim(),
+                        ContactPhone = txtContactPhone.Text.Trim(),
+                        Email = txtEmail.Text.Trim(),
+                        Address = txtAddress.Text.Trim(),
+                        City = txtCity.Text.Trim(),
+                        Province = txtProvince.Text.Trim(),
+                        PostalCode = txtPostalCode.Text.Trim(),
+                        CustomerType = txtCustomerType.Text.Trim(),
+                        Status = txtStatus.Text.Trim(),
+                        CreatedDate = DateTime.Now,
+                        LastUpdated = DateTime.Now,
+                        Notes = txtNotes.Text.Trim()
+                    };
 
-                MessageBox.Show("客户添加成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // 保存客户
+                    int newCustomerId = _customerService.CreateCustomer(customer);
+                    customer.CustomerId = newCustomerId;
+                    NewCustomer = customer;
+
+                    MessageBox.Show("客户添加成功！", "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("添加客户失败: " + ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string errorMessage = _isEditing ? "更新客户失败: " : "添加客户失败: ";
+                MessageBox.Show(errorMessage + ex.Message, "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{B3E1CCEC-A030-4C76-8DD1-974EE8260C11}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>CSproject</RootNamespace>
     <AssemblyName>CSproject</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -164,6 +164,33 @@
     <Compile Include="UI\Forms\BusinessDashboardForm.Designer.cs">
       <DependentUpon>BusinessDashboardForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="UI\Forms\FinancialManagementForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Forms\MasterDataForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Forms\PayPaymentForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Forms\RecordPaymentForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Forms\CustomerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Forms\ProductCategoryForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Forms\ProductForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Forms\SupplierForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\Forms\WarehouseForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -219,6 +246,36 @@
     <Compile Include="Business\Services\SalesReportService.cs" />
     <Compile Include="Business\Services\PurchaseReportService.cs" />
     <Compile Include="Business\Services\BusinessDashboardService.cs" />
+    <Compile Include="Business\Services\AccountPayableService.cs" />
+    <Compile Include="Business\Services\AccountReceivableService.cs" />
+    <Compile Include="Business\Services\CustomerService.cs" />
+    <Compile Include="Business\Services\ProductService.cs" />
+    <Compile Include="Business\Services\ProductCategoryService.cs" />
+    <Compile Include="Business\Services\ProfitAnalysisService.cs" />
+    <Compile Include="Business\Services\SalesOrderService.cs" />
+    <Compile Include="Business\Services\SupplierService.cs" />
+    <Compile Include="Business\Services\WarehouseService.cs" />
+    <Compile Include="Business\Models\AccountPayable.cs" />
+    <Compile Include="Business\Models\AccountReceivable.cs" />
+    <Compile Include="Business\Models\Customer.cs" />
+    <Compile Include="Business\Models\CustomerModel.cs" />
+    <Compile Include="Business\Models\Product.cs" />
+    <Compile Include="Business\Models\ProductCategory.cs" />
+    <Compile Include="Business\Models\ProfitAnalysis.cs" />
+    <Compile Include="Business\Models\SalesOrder.cs" />
+    <Compile Include="Business\Models\SalesOrderDetailModel.cs" />
+    <Compile Include="Business\Models\SalesOrderItem.cs" />
+    <Compile Include="Business\Models\SalesOrderModel.cs" />
+    <Compile Include="Business\Models\Supplier.cs" />
+    <Compile Include="Business\Models\Warehouse.cs" />
+    <Compile Include="Data\Repositories\AccountPayableRepository.cs" />
+    <Compile Include="Data\Repositories\AccountReceivableRepository.cs" />
+    <Compile Include="Data\Repositories\CustomerRepository.cs" />
+    <Compile Include="Data\Repositories\ProductCategoryRepository.cs" />
+    <Compile Include="Data\Repositories\ProductRepository.cs" />
+    <Compile Include="Data\Repositories\SalesOrderRepository.cs" />
+    <Compile Include="Data\Repositories\SupplierRepository.cs" />
+    <Compile Include="Data\Repositories\WarehouseRepository.cs" />
     <Compile Include="Data\Repositories\PurchaseOrderRepository.cs" />
     <Compile Include="UI\Forms\OrderCreationForm.cs">
       <SubType>Form</SubType>
@@ -229,16 +286,8 @@
     <Compile Include="UI\Forms\OrderDetailsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Business\Models\SalesOrder.cs" />
-    <Compile Include="Business\Models\SalesOrderItem.cs" />
-    <Compile Include="Business\Services\SalesOrderService.cs" />
-    <Compile Include="Data\Repositories\SalesOrderRepository.cs" />
-    <Compile Include="Data\Repositories\CustomerRepository.cs" />
-    <Compile Include="Business\Models\Customer.cs" />
     <Compile Include="Business\Models\InventoryModel.cs" />
-    <Compile Include="Business\Models\SalesOrderDetailModel.cs" />
-    <Compile Include="Business\Models\SalesOrderModel.cs" />
-    <Compile Include="Business\Services\CustomerService.cs" />
+    <Compile Include="Business\Models\ProductProfitAnalysisModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -17,7 +17,6 @@ namespace CSproject.Data.Repositories
             string sql = @"
                 SELECT 
                     t.product_id,
-                    p.sku,
                     p.name AS product_name,
                     SUM(t.change_qty) AS quantity_purchased,
                     COALESCE(SUM(pt.unit_cost * t.change_qty), 0) AS total_cost,
@@ -32,7 +31,7 @@ namespace CSproject.Data.Repositories
                 LEFT JOIN supplier s ON s.id = p.supplier_id
                 WHERE t.type = 'purchase'
                   AND t.created_at BETWEEN @startDate AND @endDate
-                GROUP BY t.product_id, p.sku, p.name, p.supplier_id, s.name, p.category
+                GROUP BY t.product_id, p.name, p.supplier_id, s.name, p.category
                 ORDER BY total_cost DESC";
 
             using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
@@ -48,7 +47,7 @@ namespace CSproject.Data.Repositories
                         var reportItem = new PurchaseReportModel
                         {
                             ProductId = Convert.ToInt32(reader["product_id"]),
-                            ProductSku = reader["sku"].ToString(),
+                            ProductSku = string.Empty,
                             ProductName = reader["product_name"].ToString(),
                             QuantityPurchased = Convert.ToInt32(reader["quantity_purchased"]),
                             TotalCost = reader["total_cost"] == DBNull.Value ? 0 : Convert.ToDecimal(reader["total_cost"]),

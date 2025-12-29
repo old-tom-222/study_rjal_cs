@@ -34,7 +34,7 @@ namespace CSproject.Data.Repositories
         public List<InventoryTransaction> GetTransactions(int? productId = null, int? warehouseId = null, DateTime? from = null, DateTime? to = null)
         {
             var result = new List<InventoryTransaction>();
-            string sql = @"SELECT t.id, t.product_id, p.sku, p.name AS product_name,
+            string sql = @"SELECT t.id, t.product_id, p.name AS product_name,
                                    t.warehouse_id, w.name AS warehouse_name,
                                    t.change_qty, t.type, t.reference, t.remark, t.created_at
                             FROM inventory_transaction t
@@ -61,7 +61,7 @@ namespace CSproject.Data.Repositories
                         {
                             Id = Convert.ToInt32(reader["id"]),
                             ProductId = Convert.ToInt32(reader["product_id"]),
-                            ProductSku = reader["sku"].ToString(),
+                            ProductSku = string.Empty,
                             ProductName = reader["product_name"].ToString(),
                             WarehouseId = Convert.ToInt32(reader["warehouse_id"]),
                             WarehouseName = reader["warehouse_name"].ToString(),

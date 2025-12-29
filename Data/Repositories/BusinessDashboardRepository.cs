@@ -33,26 +33,28 @@ namespace CSproject.Data.Repositories
                     SUM(ABS(t.change_qty)) AS total_items_sold,
                     SUM(CASE WHEN DATE(t.created_at) = @today THEN ABS(t.change_qty) ELSE 0 END) AS items_sold_today
                 FROM inventory_transaction t
-                LEFT JOIN sales_detail sd ON sd.product_id = t.product_id AND sd.reference = t.reference
-                WHERE t.type = 'sale'";
+                LEFT JOIN sales_order_item sd ON sd.product_id = t.product_id
+                LEFT JOIN sales_order o ON o.id = sd.order_id AND o.order_no = t.reference
+                WHERE t.type = 'sales'";
 
             // 库存统计查询
             string inventorySql = @"
                 SELECT 
                     COUNT(*) AS total_products,
-                    COUNT(CASE WHEN i.quantity <= p.safe_stock THEN 1 END) AS low_stock_items_count,
+                    COUNT(CASE WHEN i.quantity <= p.stock_qty THEN 1 END) AS low_stock_items_count,
                     COUNT(CASE WHEN i.quantity = 0 THEN 1 END) AS out_of_stock_items_count,
-                    COALESCE(SUM(i.quantity * COALESCE(p.cost, 0)), 0) AS total_inventory_value
+                    COALESCE(SUM(i.quantity * COALESCE(p.price, 0)), 0) AS total_inventory_value
                 FROM inventory i
                 INNER JOIN product p ON p.id = i.product_id";
 
             // 采购统计查询
             string purchaseSql = @"
                 SELECT 
-                    COALESCE(SUM(pt.unit_cost * t.change_qty), 0) AS total_purchase_cost,
-                    COALESCE(SUM(CASE WHEN t.created_at >= @startOfMonth THEN pt.unit_cost * t.change_qty ELSE 0 END), 0) AS purchase_cost_this_month
+                    COALESCE(SUM(pi.unit_price * t.change_qty), 0) AS total_purchase_cost,
+                    COALESCE(SUM(CASE WHEN t.created_at >= @startOfMonth THEN pi.unit_price * t.change_qty ELSE 0 END), 0) AS purchase_cost_this_month
                 FROM inventory_transaction t
-                LEFT JOIN purchase_transaction pt ON pt.product_id = t.product_id AND pt.reference = t.reference
+                LEFT JOIN purchase_order po ON po.order_no = t.reference
+                LEFT JOIN purchase_order_item pi ON pi.order_id = po.id AND pi.product_id = t.product_id
                 WHERE t.type = 'purchase'";
 
             var summary = new BusinessDashboardSummaryModel();
@@ -138,16 +140,16 @@ namespace CSproject.Data.Repositories
             string sql = @"
                 SELECT 
                     t.product_id,
-                    p.sku,
                     p.name AS product_name,
                     SUM(ABS(t.change_qty)) AS quantity_sold,
                     COALESCE(SUM(sd.unit_price * ABS(t.change_qty)), 0) AS total_revenue
                 FROM inventory_transaction t
                 INNER JOIN product p ON p.id = t.product_id
-                LEFT JOIN sales_detail sd ON sd.product_id = t.product_id AND sd.reference = t.reference
-                WHERE t.type = 'sale'
+                LEFT JOIN sales_order_item sd ON sd.product_id = t.product_id
+                LEFT JOIN sales_order o ON o.id = sd.order_id AND o.order_no = t.reference
+                WHERE t.type = 'sales'
                   AND t.created_at >= @startOfMonth
-                GROUP BY t.product_id, p.sku, p.name
+                GROUP BY t.product_id, p.name
                 ORDER BY total_revenue DESC
                 LIMIT @count";
 
@@ -164,7 +166,7 @@ namespace CSproject.Data.Repositories
                         result.Add(new TopSellingProductModel
                         {
                             ProductId = Convert.ToInt32(reader["product_id"]),
-                            ProductSku = reader["sku"].ToString(),
+                            ProductSku = string.Empty, // product表中不存在sku字段
                             ProductName = reader["product_name"].ToString(),
                             QuantitySold = Convert.ToInt32(reader["quantity_sold"]),
                             TotalRevenue = reader["total_revenue"] == DBNull.Value ? 0 : Convert.ToDecimal(reader["total_revenue"]),

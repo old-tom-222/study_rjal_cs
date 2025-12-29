@@ -11,9 +11,9 @@ namespace CSproject.Data.Repositories
         public List<InventoryItem> GetInventoryList(int? productId = null, int? warehouseId = null)
         {
             var result = new List<InventoryItem>();
-            string sql = @"SELECT i.product_id, p.sku, p.name AS product_name,
+            string sql = @"SELECT i.product_id, p.name AS product_name,
                                    i.warehouse_id, w.name AS warehouse_name,
-                                   i.quantity, p.safe_stock, p.sale_price, i.last_updated
+                                   i.quantity, p.stock_qty, p.price
                             FROM inventory i
                             INNER JOIN product p ON p.id = i.product_id
                             INNER JOIN warehouse w ON w.id = i.warehouse_id
@@ -33,14 +33,14 @@ namespace CSproject.Data.Repositories
                         result.Add(new InventoryItem
                         {
                             ProductId = Convert.ToInt32(reader["product_id"]),
-                            ProductSku = reader["sku"].ToString(),
+                            ProductSku = string.Empty,
                             ProductName = reader["product_name"].ToString(),
                             WarehouseId = Convert.ToInt32(reader["warehouse_id"]),
                             WarehouseName = reader["warehouse_name"].ToString(),
                             Quantity = Convert.ToInt32(reader["quantity"]),
-                            SafeStock = Convert.ToInt32(reader["safe_stock"]),
-                            UnitPrice = Convert.ToDecimal(reader["sale_price"]),
-                            LastUpdated = Convert.ToDateTime(reader["last_updated"])
+                            SafeStock = Convert.ToInt32(reader["stock_qty"]),
+                            UnitPrice = Convert.ToDecimal(reader["price"]),
+                            LastUpdated = DateTime.Now
                         });
                     }
                 }
@@ -51,9 +51,9 @@ namespace CSproject.Data.Repositories
         public InventoryItem GetInventory(int productId, int warehouseId)
         {
             InventoryItem item = null;
-            string sql = @"SELECT i.product_id, p.sku, p.name AS product_name,
+            string sql = @"SELECT i.product_id, p.name AS product_name,
                                    i.warehouse_id, w.name AS warehouse_name,
-                                   i.quantity, p.safe_stock, p.sale_price, i.last_updated
+                                   i.quantity, p.stock_qty, p.price
                             FROM inventory i
                             INNER JOIN product p ON p.id = i.product_id
                             INNER JOIN warehouse w ON w.id = i.warehouse_id
@@ -71,14 +71,14 @@ namespace CSproject.Data.Repositories
                         item = new InventoryItem
                         {
                             ProductId = Convert.ToInt32(reader["product_id"]),
-                            ProductSku = reader["sku"].ToString(),
+                            ProductSku = string.Empty,
                             ProductName = reader["product_name"].ToString(),
                             WarehouseId = Convert.ToInt32(reader["warehouse_id"]),
                             WarehouseName = reader["warehouse_name"].ToString(),
                             Quantity = Convert.ToInt32(reader["quantity"]),
-                            SafeStock = Convert.ToInt32(reader["safe_stock"]),
-                        UnitPrice = Convert.ToDecimal(reader["sale_price"]),
-                        LastUpdated = Convert.ToDateTime(reader["last_updated"])
+                            SafeStock = Convert.ToInt32(reader["stock_qty"]),
+                            UnitPrice = Convert.ToDecimal(reader["price"]),
+                            LastUpdated = DateTime.Now
                         };
                     }
                 }
@@ -127,13 +127,13 @@ namespace CSproject.Data.Repositories
         public List<InventoryItem> GetLowStockWarnings()
         {
             var result = new List<InventoryItem>();
-            string sql = @"SELECT i.product_id, p.sku, p.name AS product_name,
+            string sql = @"SELECT i.product_id, p.name AS product_name,
                                    i.warehouse_id, w.name AS warehouse_name,
-                                   i.quantity, p.safe_stock, p.sale_price, i.last_updated
+                                   i.quantity, p.stock_qty, p.price
                             FROM inventory i
                             INNER JOIN product p ON p.id = i.product_id
                             INNER JOIN warehouse w ON w.id = i.warehouse_id
-                            WHERE i.quantity < p.safe_stock
+                            WHERE i.quantity < p.stock_qty
                             ORDER BY p.name, w.name";
             using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
             using (var cmd = new MySqlCommand(sql, conn))
@@ -146,14 +146,14 @@ namespace CSproject.Data.Repositories
                         result.Add(new InventoryItem
                         {
                             ProductId = Convert.ToInt32(reader["product_id"]),
-                            ProductSku = reader["sku"].ToString(),
+                            ProductSku = string.Empty,
                             ProductName = reader["product_name"].ToString(),
                             WarehouseId = Convert.ToInt32(reader["warehouse_id"]),
                             WarehouseName = reader["warehouse_name"].ToString(),
                             Quantity = Convert.ToInt32(reader["quantity"]),
-                            SafeStock = Convert.ToInt32(reader["safe_stock"]),
-                            UnitPrice = Convert.ToDecimal(reader["sale_price"]),
-                            LastUpdated = Convert.ToDateTime(reader["last_updated"])
+                            SafeStock = Convert.ToInt32(reader["stock_qty"]),
+                            UnitPrice = Convert.ToDecimal(reader["price"]),
+                            LastUpdated = DateTime.Now
                         });
                     }
                 }
@@ -186,11 +186,10 @@ namespace CSproject.Data.Repositories
                     int newQuantity = currentQuantity + quantityChange;
                     
                     string updateSql = @"UPDATE inventory 
-                                       SET quantity = @newQuantity, last_updated = @lastUpdated
+                                       SET quantity = @newQuantity
                                        WHERE product_id = @productId AND warehouse_id = @warehouseId";
                     MySqlCommand updateCmd = new MySqlCommand(updateSql, connection);
                     updateCmd.Parameters.AddWithValue("@newQuantity", newQuantity);
-                    updateCmd.Parameters.AddWithValue("@lastUpdated", DateTime.Now);
                     updateCmd.Parameters.AddWithValue("@productId", productId);
                     updateCmd.Parameters.AddWithValue("@warehouseId", warehouseId);
                     
@@ -199,13 +198,12 @@ namespace CSproject.Data.Repositories
                 else
                 {
                     // 库存记录不存在，创建新记录
-                    string insertSql = @"INSERT INTO inventory (product_id, warehouse_id, quantity, last_updated)
-                                       VALUES (@productId, @warehouseId, @quantity, @lastUpdated)";
+                    string insertSql = @"INSERT INTO inventory (product_id, warehouse_id, quantity)
+                                       VALUES (@productId, @warehouseId, @quantity)";
                     MySqlCommand insertCmd = new MySqlCommand(insertSql, connection);
                     insertCmd.Parameters.AddWithValue("@productId", productId);
                     insertCmd.Parameters.AddWithValue("@warehouseId", warehouseId);
                     insertCmd.Parameters.AddWithValue("@quantity", quantityChange);
-                    insertCmd.Parameters.AddWithValue("@lastUpdated", DateTime.Now);
                     
                     insertCmd.ExecuteNonQuery();
                 }
@@ -222,8 +220,7 @@ namespace CSproject.Data.Repositories
         public bool ReduceInventory(int productId, int warehouseId, int quantity)
         {
             string sql = @"UPDATE inventory 
-                           SET quantity = quantity - @quantity, 
-                               last_updated = NOW()
+                           SET quantity = quantity - @quantity
                            WHERE product_id = @productId 
                              AND warehouse_id = @warehouseId 
                              AND quantity >= @quantity";

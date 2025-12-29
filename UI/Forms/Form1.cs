@@ -8,7 +8,30 @@ namespace CSproject
     {
         public Form1()
         {
+            Console.WriteLine("Form1构造函数开始执行...");
             InitializeComponent();
+            Console.WriteLine("Form1组件初始化完成...");
+            
+            // 设置表单启动位置和状态
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.WindowState = FormWindowState.Normal;
+            Console.WriteLine("Form1启动位置和状态设置完成...");
+            
+            // 确保窗口可见
+            this.Visible = true;
+            Console.WriteLine("Form1.Visible设置为true...");
+            
+            // 添加Load事件处理程序
+            this.Load += Form1_Load;
+        }
+        
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            Console.WriteLine("Form1_Load事件触发...");
+            Console.WriteLine("窗口大小: " + this.Size.ToString());
+            Console.WriteLine("窗口位置: " + this.Location.ToString());
+            Console.WriteLine("窗口可见性: " + this.Visible.ToString());
+            Console.WriteLine("panelLogin可见性: " + panelLogin.Visible.ToString());
         }
 
         private void BtnLoginClick(object sender, EventArgs e)
@@ -48,8 +71,9 @@ namespace CSproject
                     return;
                 }
                 
-                // 不需要检查静态类DbHelper是否为null，因为静态类永远不会为null
-
+                // 提示用户正在连接数据库
+                MessageBox.Show("正在连接数据库...", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                
                 // 先测试数据库连接状态
                 if (!DbHelper.TestConnection())
                 {
