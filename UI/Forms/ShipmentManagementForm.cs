@@ -191,9 +191,6 @@ namespace CSproject.UI.Forms
             {
                 // 发生异常时重置统计信息
                 ResetStatistics();
-                
-                // 记录异常
-                Console.WriteLine($"更新待发货订单统计信息失败: {ex.Message}");
             }
         }
         
@@ -273,7 +270,6 @@ namespace CSproject.UI.Forms
                     catch (Exception ex)
                     {
                         // 单个项目处理失败时继续处理其他项目
-                        Console.WriteLine($"处理订单项统计信息时出错: {ex.Message}");
                     }
                 }
                 
@@ -285,7 +281,6 @@ namespace CSproject.UI.Forms
             {
                 // 发生异常时重置统计信息
                 ResetStatistics();
-                Console.WriteLine($"更新统计显示时出错: {ex.Message}");
             }
         }
         

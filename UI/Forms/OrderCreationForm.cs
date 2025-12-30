@@ -185,7 +185,6 @@ namespace CSproject.UI.Forms
             catch (Exception ex)
             {
                 // 记录错误但不中断程序
-                Console.WriteLine("设置采购员选中项失败：" + ex.Message);
             }
         }
 

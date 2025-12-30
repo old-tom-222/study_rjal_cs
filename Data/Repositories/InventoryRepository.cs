@@ -13,7 +13,7 @@ namespace CSproject.Data.Repositories
             var result = new List<InventoryItem>();
             string sql = @"SELECT i.product_id, p.name AS product_name,
                                    i.warehouse_id, w.name AS warehouse_name,
-                                   i.quantity, p.stock_qty, p.price
+                                   i.quantity, p.safe_stock, p.sale_price
                             FROM inventory i
                             INNER JOIN product p ON p.id = i.product_id
                             INNER JOIN warehouse w ON w.id = i.warehouse_id
@@ -38,8 +38,8 @@ namespace CSproject.Data.Repositories
                             WarehouseId = Convert.ToInt32(reader["warehouse_id"]),
                             WarehouseName = reader["warehouse_name"].ToString(),
                             Quantity = Convert.ToInt32(reader["quantity"]),
-                            SafeStock = Convert.ToInt32(reader["stock_qty"]),
-                            UnitPrice = Convert.ToDecimal(reader["price"]),
+                            SafeStock = Convert.ToInt32(reader["safe_stock"]),
+                            UnitPrice = Convert.ToDecimal(reader["sale_price"]),
                             LastUpdated = DateTime.Now
                         });
                     }
@@ -53,7 +53,7 @@ namespace CSproject.Data.Repositories
             InventoryItem item = null;
             string sql = @"SELECT i.product_id, p.name AS product_name,
                                    i.warehouse_id, w.name AS warehouse_name,
-                                   i.quantity, p.stock_qty, p.price
+                                   i.quantity, p.safe_stock, p.sale_price
                             FROM inventory i
                             INNER JOIN product p ON p.id = i.product_id
                             INNER JOIN warehouse w ON w.id = i.warehouse_id
@@ -76,8 +76,8 @@ namespace CSproject.Data.Repositories
                             WarehouseId = Convert.ToInt32(reader["warehouse_id"]),
                             WarehouseName = reader["warehouse_name"].ToString(),
                             Quantity = Convert.ToInt32(reader["quantity"]),
-                            SafeStock = Convert.ToInt32(reader["stock_qty"]),
-                            UnitPrice = Convert.ToDecimal(reader["price"]),
+                            SafeStock = Convert.ToInt32(reader["safe_stock"]),
+                            UnitPrice = Convert.ToDecimal(reader["sale_price"]),
                             LastUpdated = DateTime.Now
                         };
                     }
@@ -129,11 +129,11 @@ namespace CSproject.Data.Repositories
             var result = new List<InventoryItem>();
             string sql = @"SELECT i.product_id, p.name AS product_name,
                                    i.warehouse_id, w.name AS warehouse_name,
-                                   i.quantity, p.stock_qty, p.price
+                                   i.quantity, p.safe_stock, p.sale_price
                             FROM inventory i
                             INNER JOIN product p ON p.id = i.product_id
                             INNER JOIN warehouse w ON w.id = i.warehouse_id
-                            WHERE i.quantity < p.stock_qty
+                            WHERE i.quantity < p.safe_stock
                             ORDER BY p.name, w.name";
             using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
             using (var cmd = new MySqlCommand(sql, conn))
@@ -151,8 +151,8 @@ namespace CSproject.Data.Repositories
                             WarehouseId = Convert.ToInt32(reader["warehouse_id"]),
                             WarehouseName = reader["warehouse_name"].ToString(),
                             Quantity = Convert.ToInt32(reader["quantity"]),
-                            SafeStock = Convert.ToInt32(reader["stock_qty"]),
-                            UnitPrice = Convert.ToDecimal(reader["price"]),
+                            SafeStock = Convert.ToInt32(reader["safe_stock"]),
+                            UnitPrice = Convert.ToDecimal(reader["sale_price"]),
                             LastUpdated = DateTime.Now
                         });
                     }

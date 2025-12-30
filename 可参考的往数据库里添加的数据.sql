@@ -142,3 +142,17 @@ SET total_amount = (
     WHERE order_id = so.id
 )
 WHERE id > 0; -- 添加WHERE条件使用主键列
+
+-- 13. 应收账款数据（新增）
+INSERT INTO account_receivable (order_no, customer_id, total_amount, paid_amount, outstanding_amount, status, order_date, due_date) VALUES
+('SO202401001', 1, 9898.00, 5000.00, 4898.00, 'partial', '2024-01-10', '2024-02-10'),
+('SO202401002', 2, 2199.00, 0.00, 2199.00, 'unpaid', '2024-01-15', '2024-02-15'),
+('SO202401003', 3, 7999.00, 7999.00, 0.00, 'paid', '2024-01-20', '2024-02-20'),
+('SO202401004', 4, 1525.00, 1000.00, 525.00, 'partial', '2024-01-25', '2024-02-25');
+
+-- 14. 应付账款数据（新增）
+INSERT INTO account_payable (order_no, supplier_id, total_amount, paid_amount, outstanding_amount, status, order_date, due_date) VALUES
+('PO202401001', 1, 17997.00, 17997.00, 0.00, 'paid', '2024-01-05', '2024-01-30'),
+('PO202401002', 2, 15996.00, 8000.00, 7996.00, 'partial', '2024-01-10', '2024-02-10'),
+('PO202401003', 3, 9495.00, 0.00, 9495.00, 'unpaid', '2024-01-15', '2024-02-15'),
+('PO202401004', 4, 430.00, 430.00, 0.00, 'paid', '2024-01-20', '2024-02-20');

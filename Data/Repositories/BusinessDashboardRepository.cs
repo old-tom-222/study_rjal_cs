@@ -41,9 +41,9 @@ namespace CSproject.Data.Repositories
             string inventorySql = @"
                 SELECT 
                     COUNT(*) AS total_products,
-                    COUNT(CASE WHEN i.quantity <= p.stock_qty THEN 1 END) AS low_stock_items_count,
+                    COUNT(CASE WHEN i.quantity <= p.safe_stock THEN 1 END) AS low_stock_items_count,
                     COUNT(CASE WHEN i.quantity = 0 THEN 1 END) AS out_of_stock_items_count,
-                    COALESCE(SUM(i.quantity * COALESCE(p.price, 0)), 0) AS total_inventory_value
+                    COALESCE(SUM(i.quantity * COALESCE(p.cost_price, 0)), 0) AS total_inventory_value
                 FROM inventory i
                 INNER JOIN product p ON p.id = i.product_id";
 

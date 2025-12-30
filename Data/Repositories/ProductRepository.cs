@@ -11,10 +11,10 @@ namespace CSproject.Data.Repositories
         public List<Product> GetProducts(string productName = null, int? categoryId = null, string status = null)
         {
             var result = new List<Product>();
-            string sql = @"SELECT p.id AS ProductId, p.name AS ProductName, 
+            string sql = @"SELECT p.id AS ProductId, p.sku AS Sku, p.name AS ProductName, 
                                  p.category_id AS CategoryId, pc.name AS CategoryName,
-                                 p.price AS CostPrice, p.price AS SalePrice,
-                                 p.stock_qty AS SafeStock, p.status AS Status
+                                 p.cost_price AS CostPrice, p.sale_price AS SalePrice,
+                                 p.safe_stock AS SafeStock, p.status AS Status
                             FROM product p
                             INNER JOIN product_category pc ON p.category_id = pc.id
                             WHERE (@productName IS NULL OR p.name LIKE @productName)
@@ -62,7 +62,7 @@ namespace CSproject.Data.Repositories
                                 result.Add(new Product
                                 {
                                     ProductId = Convert.ToInt32(reader["ProductId"]),
-                                    Sku = string.Empty,
+                                    Sku = reader["Sku"].ToString(),
                                     ProductName = reader["ProductName"].ToString(),
                                     CategoryId = Convert.ToInt32(reader["CategoryId"]),
                                     CategoryName = reader["CategoryName"].ToString(),
@@ -88,10 +88,10 @@ namespace CSproject.Data.Repositories
         public Product GetProductById(int productId)
         {
             Product product = null;
-            string sql = @"SELECT p.id AS ProductId, p.name AS ProductName, 
+            string sql = @"SELECT p.id AS ProductId, p.sku AS Sku, p.name AS ProductName, 
                                  p.category_id AS CategoryId, pc.name AS CategoryName,
-                                 p.price AS CostPrice, p.price AS SalePrice,
-                                 p.stock_qty AS SafeStock, p.status AS Status
+                                 p.cost_price AS CostPrice, p.sale_price AS SalePrice,
+                                 p.safe_stock AS SafeStock, p.status AS Status
                             FROM product p
                             INNER JOIN product_category pc ON p.category_id = pc.id
                             WHERE p.id = @productId";
@@ -109,7 +109,7 @@ namespace CSproject.Data.Repositories
                         product = new Product
                         {
                             ProductId = Convert.ToInt32(reader["ProductId"]),
-                            Sku = string.Empty,
+                            Sku = reader["Sku"].ToString(),
                             ProductName = reader["ProductName"].ToString(),
                             CategoryId = Convert.ToInt32(reader["CategoryId"]),
                             CategoryName = reader["CategoryName"].ToString(),
@@ -138,16 +138,18 @@ namespace CSproject.Data.Repositories
         
         public int CreateProduct(Product product)
         {
-            string sql = @"INSERT INTO product (name, category_id, price, stock_qty, status)
-                            VALUES (@productName, @categoryId, @price, @stockQty, @status);
+            string sql = @"INSERT INTO product (sku, name, category_id, cost_price, sale_price, safe_stock, status)
+                            VALUES (@sku, @productName, @categoryId, @costPrice, @salePrice, @stockQty, @status);
                             SELECT LAST_INSERT_ID();";
             
             using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
             using (var cmd = new MySqlCommand(sql, conn))
             {
+                cmd.Parameters.AddWithValue("@sku", product.Sku);
                 cmd.Parameters.AddWithValue("@productName", product.ProductName);
                 cmd.Parameters.AddWithValue("@categoryId", product.CategoryId);
-                cmd.Parameters.AddWithValue("@price", product.CostPrice); // 只使用一个price字段
+                cmd.Parameters.AddWithValue("@costPrice", product.CostPrice);
+                cmd.Parameters.AddWithValue("@salePrice", product.SalePrice);
                 cmd.Parameters.AddWithValue("@stockQty", product.SafeStock);
                 cmd.Parameters.AddWithValue("@status", product.Status ?? "1");
                 
@@ -159,19 +161,23 @@ namespace CSproject.Data.Repositories
         public bool UpdateProduct(Product product)
         {
             string sql = @"UPDATE product 
-                            SET name = @productName, 
+                            SET sku = @sku,
+                                name = @productName, 
                                 category_id = @categoryId,
-                                price = @price,
-                                stock_qty = @stockQty,
+                                cost_price = @costPrice,
+                                sale_price = @salePrice,
+                                safe_stock = @stockQty,
                                 status = @status
                             WHERE id = @productId";
             
             using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
             using (var cmd = new MySqlCommand(sql, conn))
             {
+                cmd.Parameters.AddWithValue("@sku", product.Sku);
                 cmd.Parameters.AddWithValue("@productName", product.ProductName);
                 cmd.Parameters.AddWithValue("@categoryId", product.CategoryId);
-                cmd.Parameters.AddWithValue("@price", product.CostPrice); // 只使用一个price字段
+                cmd.Parameters.AddWithValue("@costPrice", product.CostPrice);
+                cmd.Parameters.AddWithValue("@salePrice", product.SalePrice);
                 cmd.Parameters.AddWithValue("@stockQty", product.SafeStock);
                 cmd.Parameters.AddWithValue("@status", product.Status);
                 cmd.Parameters.AddWithValue("@productId", product.ProductId);

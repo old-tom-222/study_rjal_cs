@@ -130,7 +130,7 @@ namespace CSproject.Data.Repositories
         {
             string sql = @"INSERT INTO account_payable (order_no, supplier_id, total_amount, paid_amount, outstanding_amount, status, order_date, due_date)
                             VALUES (@orderNo, @supplierId, @totalAmount, @paidAmount, @outstandingAmount, @status, @orderDate, @dueDate);
-                            SELECT 576931439;";
+                            SELECT LAST_INSERT_ID();";
             
             using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
             using (var cmd = new MySqlCommand(sql, conn))

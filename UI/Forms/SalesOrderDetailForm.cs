@@ -153,8 +153,6 @@ namespace CSproject.UI.Forms
                     catch (Exception ex)
                     {
                         // 错误处理
-                        Console.WriteLine($"订单明细填充错误: {ex.Message}");
-                        Console.WriteLine(ex.StackTrace);
                     }
 
                     // 根据订单状态显示相应的操作按钮

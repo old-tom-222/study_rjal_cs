@@ -21,8 +21,8 @@ namespace CSproject.Data.Repositories
                     i.warehouse_id,
                     w.name AS warehouse_name,
                     i.quantity AS current_quantity,
-                    p.stock_qty AS safe_stock,
-                    COALESCE(p.stock_qty, 0) AS reorder_quantity,
+                    p.safe_stock AS safe_stock,
+                    COALESCE(p.safe_stock, 0) AS reorder_quantity,
                     COALESCE(AVG(pt.unit_cost), 0) AS average_cost,
                     MAX(t.created_at) AS last_stock_movement_date
                 FROM inventory i
@@ -31,7 +31,7 @@ namespace CSproject.Data.Repositories
                 LEFT JOIN inventory_transaction t ON t.product_id = i.product_id AND t.warehouse_id = i.warehouse_id
                 LEFT JOIN purchase_transaction pt ON pt.product_id = i.product_id
                 WHERE (@warehouseId IS NULL OR i.warehouse_id = @warehouseId)
-                GROUP BY i.product_id, i.warehouse_id, p.name, w.name, i.quantity, p.stock_qty
+                GROUP BY i.product_id, i.warehouse_id, p.name, w.name, i.quantity, p.safe_stock
                 ORDER BY p.name, w.name";
 
             using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))
@@ -81,16 +81,16 @@ namespace CSproject.Data.Repositories
                     i.warehouse_id,
                     w.name AS warehouse_name,
                     i.quantity AS current_quantity,
-                    p.stock_qty AS safe_stock,
-                    COALESCE(p.stock_qty, 0) AS reorder_quantity,
+                    p.safe_stock AS safe_stock,
+                    COALESCE(p.safe_stock, 0) AS reorder_quantity,
                     COALESCE(AVG(pt.unit_cost), 0) AS average_cost
                 FROM inventory i
                 INNER JOIN product p ON p.id = i.product_id
                 INNER JOIN warehouse w ON w.id = i.warehouse_id
                 LEFT JOIN purchase_transaction pt ON pt.product_id = i.product_id
-                WHERE i.quantity <= p.stock_qty
+                WHERE i.quantity <= p.safe_stock
                   AND (@warehouseId IS NULL OR i.warehouse_id = @warehouseId)
-                GROUP BY i.product_id, i.warehouse_id, p.name, w.name, i.quantity, p.stock_qty
+                GROUP BY i.product_id, i.warehouse_id, p.name, w.name, i.quantity, p.safe_stock
                 ORDER BY i.quantity ASC";
 
             using (var conn = new MySqlConnection(DbHelper.GetConnectionString()))

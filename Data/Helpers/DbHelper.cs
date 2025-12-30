@@ -132,7 +132,6 @@ namespace CSproject.Data.Helpers
             catch (Exception ex)
             {
                 // 记录错误但不阻止应用程序启动
-                Console.WriteLine($"数据库初始化警告: {ex.Message}");
             }
         }
 
