@@ -9,6 +9,11 @@ namespace CSproject.UI.Forms
     public partial class Form2 : Form
     {
         private PurchaseOrderListForm _purchaseOrderListForm;
+        
+        // 当前登录用户信息
+        public int CurrentUserId { get; set; }
+        public string CurrentUserName { get; set; }
+        public string CurrentUserRole { get; set; }
 
         public Form2()
         {
@@ -43,7 +48,7 @@ namespace CSproject.UI.Forms
             panelSalesSubMenu.Visible = false;
             // 加载采购订单管理界面到内容面板
             this.panelContent.Controls.Clear();
-            _purchaseOrderListForm = new PurchaseOrderListForm
+            _purchaseOrderListForm = new PurchaseOrderListForm(CurrentUserId, CurrentUserName)
             {
                 TopLevel = false,
                 FormBorderStyle = FormBorderStyle.None,

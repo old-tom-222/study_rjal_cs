@@ -71,10 +71,15 @@ namespace CSproject
                 // 验证用户登录
                 if (DbHelper.ValidateUser(txtAccount.Text, txtPassword.Text))
                 {
+                    // 获取用户信息
+                    var (userId, userName, userRole) = DbHelper.GetUserByAccount(txtAccount.Text);
+                    
                     // 登录成功，跳转到Form2
-                    MessageBox.Show("登录成功！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.Hide();
                     CSproject.UI.Forms.Form2 form2 = new CSproject.UI.Forms.Form2();
+                    form2.CurrentUserId = userId;
+                    form2.CurrentUserName = userName;
+                    form2.CurrentUserRole = userRole;
                     form2.ShowDialog();
                     this.Close();
                 }
@@ -166,9 +171,14 @@ namespace CSproject
                 if (DbHelper.AddUser(txtRegAccount.Text, txtRegPassword.Text, txtName.Text, role))
                 {
                     // 注册成功后直接登录并进入后续界面
-                    MessageBox.Show("注册成功，正在登录...", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    // 获取用户信息
+                    var (userId, userName, userRole) = DbHelper.GetUserByAccount(txtRegAccount.Text);
+                    
                     this.Hide();
                     CSproject.UI.Forms.Form2 form2 = new CSproject.UI.Forms.Form2();
+                    form2.CurrentUserId = userId;
+                    form2.CurrentUserName = userName;
+                    form2.CurrentUserRole = userRole;
                     form2.ShowDialog();
                     this.Close();
                 }

@@ -12,6 +12,8 @@ namespace CSproject.UI.Forms
         private readonly Form2 _parentForm;
         private int _orderId; // 存储订单ID，0表示新建订单
         private bool _isReadOnly; // 是否为只读模式
+        private int _currentUserId; // 当前登录用户ID
+        private string _currentUserName; // 当前登录用户名
 
         public OrderCreationForm(PurchaseOrderRepository purchaseOrderRepo, Form2 parentForm, int orderId = 0, bool isReadOnly = false)
         {
@@ -20,6 +22,20 @@ namespace CSproject.UI.Forms
             _parentForm = parentForm;
             _orderId = orderId;
             _isReadOnly = isReadOnly;
+            _currentUserId = 0;
+            _currentUserName = string.Empty;
+        }
+        
+        // 带用户信息的构造函数
+        public OrderCreationForm(PurchaseOrderRepository purchaseOrderRepo, Form2 parentForm, int currentUserId, string currentUserName, int orderId = 0, bool isReadOnly = false)
+        {
+            InitializeComponent();
+            _purchaseOrderRepo = purchaseOrderRepo;
+            _parentForm = parentForm;
+            _orderId = orderId;
+            _isReadOnly = isReadOnly;
+            _currentUserId = currentUserId;
+            _currentUserName = currentUserName;
         }
 
         private void OrderCreationForm_Load(object sender, EventArgs e)
@@ -54,6 +70,12 @@ namespace CSproject.UI.Forms
                     // 新建模式：生成订单号
                     txtOrderNo.Text = _purchaseOrderRepo.GenerateOrderNo();
                     this.Text = "创建采购订单";
+                    
+                    // 自动设置采购人为当前登录用户
+                    if (!string.IsNullOrEmpty(_currentUserName))
+                    {
+                        SetPurchaserSelectedItem(_currentUserName);
+                    }
                 }
             }
             catch (Exception ex)

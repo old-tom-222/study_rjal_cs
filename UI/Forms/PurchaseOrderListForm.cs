@@ -9,11 +9,23 @@ namespace CSproject.UI.Forms
     public partial class PurchaseOrderListForm : Form
     {
         private readonly PurchaseOrderRepository _purchaseOrderRepo;
+        private readonly int _currentUserId;
+        private readonly string _currentUserName;
 
         public PurchaseOrderListForm()
         {
             InitializeComponent();
             _purchaseOrderRepo = new PurchaseOrderRepository();
+            _currentUserId = 0;
+            _currentUserName = "";
+        }
+        
+        public PurchaseOrderListForm(int currentUserId, string currentUserName)
+        {
+            InitializeComponent();
+            _purchaseOrderRepo = new PurchaseOrderRepository();
+            _currentUserId = currentUserId;
+            _currentUserName = currentUserName;
         }
 
         public void LoadPurchaseOrders()
@@ -104,8 +116,8 @@ namespace CSproject.UI.Forms
                 // 获取父级Form2
                 Form2 parentForm = (Form2)this.ParentForm;
                 
-                // 创建新订单
-                OrderCreationForm orderForm = new OrderCreationForm(_purchaseOrderRepo, parentForm);
+                // 创建新订单，传递当前用户信息
+                OrderCreationForm orderForm = new OrderCreationForm(_purchaseOrderRepo, parentForm, _currentUserId, _currentUserName);
                 orderForm.ShowDialog();
             }
             catch (Exception ex)

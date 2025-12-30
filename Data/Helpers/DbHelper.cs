@@ -356,5 +356,55 @@ namespace CSproject.Data.Helpers
                 }
             }
         }
+
+        /// <summary>
+        /// 根据账号获取用户信息
+        /// </summary>
+        /// <param name="account"></param>
+        /// <returns></returns>
+        public static (int id, string name, string role) GetUserByAccount(string account)
+        {
+            if (string.IsNullOrEmpty(account))
+            {
+                throw new ArgumentNullException(nameof(account), "账号不能为空");
+            }
+            
+            string connectionString = GetConnectionString();
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                try
+                {
+                    connection.Open();
+
+                    string query = "SELECT id, name, role FROM user WHERE account = @account";
+                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@account", account);
+                        using (MySqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                int id = Convert.ToInt32(reader["id"]);
+                                string name = reader["name"].ToString();
+                                string role = reader["role"].ToString();
+                                return (id, name, role);
+                            }
+                            else
+                            {
+                                throw new Exception("用户不存在");
+                            }
+                        }
+                    }
+                }
+                catch (MySqlException ex)
+                {
+                    throw new Exception($"数据库操作错误: {ex.Message}", ex);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"获取用户信息失败: {ex.Message}", ex);
+                }
+            }
+        }
     }
 }
