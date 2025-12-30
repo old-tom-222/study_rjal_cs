@@ -150,7 +150,7 @@ namespace CSproject.UI.Forms
                             dgvOrderDetails.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
                         }
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         // 错误处理
                     }

@@ -24,7 +24,8 @@ namespace CSproject.Data.Repositories
                     p.supplier_id,
                     s.name AS supplier_name,
                     COUNT(DISTINCT t.reference) AS purchase_order_count,
-                    p.category
+                    p.category,
+                    MAX(t.created_at) AS last_purchase_date
                 FROM inventory_transaction t
                 INNER JOIN product p ON p.id = t.product_id
                 LEFT JOIN purchase_transaction pt ON pt.product_id = t.product_id AND pt.reference = t.reference
@@ -54,6 +55,7 @@ namespace CSproject.Data.Repositories
                             AverageCost = reader["average_cost"] == DBNull.Value ? 0 : Convert.ToDecimal(reader["average_cost"]),
                             StartDate = startDate,
                             EndDate = endDate,
+                            LastPurchaseDate = Convert.ToDateTime(reader["last_purchase_date"]),
                             SupplierId = reader["supplier_id"] == DBNull.Value ? 0 : Convert.ToInt32(reader["supplier_id"]),
                             SupplierName = reader["supplier_name"] == DBNull.Value ? string.Empty : reader["supplier_name"].ToString(),
                             PurchaseOrderCount = Convert.ToInt32(reader["purchase_order_count"]),

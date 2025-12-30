@@ -16,6 +16,7 @@ namespace CSproject.Business.Models
         public string SupplierName { get; set; }
         public int PurchaseOrderCount { get; set; }
         public string Category { get; set; }
+        public DateTime LastPurchaseDate { get; set; }
     }
 
     public class SupplierPerformanceReportModel

@@ -187,7 +187,7 @@ namespace CSproject.UI.Forms
                     UpdateStatisticsWorker(displayDataList);
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // 发生异常时重置统计信息
                 ResetStatistics();
@@ -267,7 +267,7 @@ namespace CSproject.UI.Forms
                             }
                         }
                     }
-                    catch (Exception ex)
+                    catch
                     {
                         // 单个项目处理失败时继续处理其他项目
                     }
@@ -277,7 +277,7 @@ namespace CSproject.UI.Forms
                 lblTotalAmount.Text = "待发货总金额: " + totalAmount.ToString("F2");
                 lblTotalProducts.Text = "待发货商品种类: " + productCount;
             }
-            catch (Exception ex)
+            catch
             {
                 // 发生异常时重置统计信息
                 ResetStatistics();

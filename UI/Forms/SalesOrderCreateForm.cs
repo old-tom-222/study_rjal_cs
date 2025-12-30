@@ -182,7 +182,9 @@ namespace CSproject.UI.Forms
         {
             try
             {
-                var inventories = _inventoryService.GetInventoryModels(null, null, null);
+                var inventories = _inventoryService.GetInventoryModels(null, null, null)
+                    .Where(i => i.Quantity > 0) // 只显示库存不为0的产品
+                    .ToList();
                 cmbProduct.DataSource = inventories;
                 cmbProduct.DisplayMember = "ProductName";
                 cmbProduct.ValueMember = "ProductId";

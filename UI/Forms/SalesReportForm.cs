@@ -54,22 +54,6 @@ namespace CSproject.UI.Forms
             if (dtpTrendEnd != null)
                 dtpTrendEnd.Value = DateTime.Now;
             
-            // 初始化客户排名相关控件
-            if (dtpCustomerRankingsStart != null)
-                dtpCustomerRankingsStart.Value = DateTime.Now.AddDays(-30);
-            if (dtpCustomerRankingsEnd != null)
-                dtpCustomerRankingsEnd.Value = DateTime.Now;
-            if (nudCustomerTopN != null)
-                nudCustomerTopN.Value = 10;
-            
-            // 初始化产品排名相关控件
-            if (dtpProductRankingsStart != null)
-                dtpProductRankingsStart.Value = DateTime.Now.AddDays(-30);
-            if (dtpProductRankingsEnd != null)
-                dtpProductRankingsEnd.Value = DateTime.Now;
-            if (nudProductTopN != null)
-                nudProductTopN.Value = 10;
-            
             // 设置日期粒度下拉框（添加空引用检查）
             if (cmbTrendGranularity != null)
             {
@@ -109,34 +93,6 @@ namespace CSproject.UI.Forms
                     new DataGridViewTextBoxColumn { Name = "TotalQuantity", HeaderText = "销售数量", DataPropertyName = "TotalQuantity", Width = 120 },
                     new DataGridViewTextBoxColumn { Name = "OrderCount", HeaderText = "订单数量", DataPropertyName = "OrderCount", Width = 100 },
                     new DataGridViewTextBoxColumn { Name = "YoYGrowth", HeaderText = "同比增长(%)", DataPropertyName = "YoYGrowth", Width = 100 }
-                );
-            }
-            
-            // 初始化客户排名报表数据网格
-            if (dgvCustomerRankings != null)
-            {
-                dgvCustomerRankings.AutoGenerateColumns = false;
-                dgvCustomerRankings.Columns.AddRange(
-                    new DataGridViewTextBoxColumn { Name = "Rank", HeaderText = "排名", DataPropertyName = "Rank", Width = 60 },
-                    new DataGridViewTextBoxColumn { Name = "CustomerName", HeaderText = "客户名称", DataPropertyName = "CustomerName", Width = 180 },
-                    new DataGridViewTextBoxColumn { Name = "ContactPhone", HeaderText = "联系电话", DataPropertyName = "ContactPhone", Width = 120 },
-                    new DataGridViewTextBoxColumn { Name = "TotalAmount", HeaderText = "总消费金额", DataPropertyName = "TotalAmount", Width = 120 },
-                    new DataGridViewTextBoxColumn { Name = "OrderCount", HeaderText = "订单数量", DataPropertyName = "OrderCount", Width = 100 }
-                );
-            }
-            
-            // 初始化产品排名报表数据网格
-            if (dgvProductRankings != null)
-            {
-                dgvProductRankings.AutoGenerateColumns = false;
-                dgvProductRankings.Columns.AddRange(
-                    new DataGridViewTextBoxColumn { Name = "Rank", HeaderText = "排名", DataPropertyName = "Rank", Width = 60 },
-                    new DataGridViewTextBoxColumn { Name = "ProductName", HeaderText = "产品名称", DataPropertyName = "ProductName", Width = 200 },
-                    new DataGridViewTextBoxColumn { Name = "ProductCode", HeaderText = "产品编号", DataPropertyName = "ProductCode", Width = 100 },
-                    new DataGridViewTextBoxColumn { Name = "Category", HeaderText = "产品类别", DataPropertyName = "Category", Width = 100 },
-                    new DataGridViewTextBoxColumn { Name = "SalesQuantity", HeaderText = "销售数量", DataPropertyName = "SalesQuantity", Width = 100 },
-                    new DataGridViewTextBoxColumn { Name = "TotalAmount", HeaderText = "销售金额", DataPropertyName = "TotalAmount", Width = 120 },
-                    new DataGridViewTextBoxColumn { Name = "AveragePrice", HeaderText = "平均单价", DataPropertyName = "AveragePrice", Width = 100 }
                 );
             }
         }
@@ -477,126 +433,6 @@ namespace CSproject.UI.Forms
                 System.Diagnostics.Debug.WriteLine(string.Format("CSV导出异常: {0}\n{1}", ex.Message, ex.StackTrace));
                 throw new Exception(string.Format("CSV导出失败: {0}\n目标路径: {1}", ex.Message, filePath), ex);
             }
-        }
-
-        private void BtnLoadCustomerRankingsClick(object sender, EventArgs e)
-        {
-            LoadCustomerRankings();
-        }
-
-        private void BtnExportCustomerRankingsClick(object sender, EventArgs e)
-        {
-            ExportToExcel(dgvCustomerRankings, "客户销售排名");
-        }
-
-        private void BtnLoadProductRankingsClick(object sender, EventArgs e)
-        {
-            LoadProductRankings();
-        }
-
-        private void BtnExportProductRankingsClick(object sender, EventArgs e)
-        {
-            ExportToExcel(dgvProductRankings, "产品销售排名");
-        }
-
-        private void LoadCustomerRankings()
-        {
-            try
-            {
-                // 添加严格的空引用检查
-                if (dtpCustomerRankingsStart == null || dtpCustomerRankingsEnd == null || 
-                    nudCustomerTopN == null || dgvCustomerRankings == null)
-                {
-                    MessageBox.Show("客户排名相关控件未正确初始化", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                
-                Cursor = Cursors.WaitCursor;
-                
-                // 获取日期范围和前N个客户数
-                var startDate = dtpCustomerRankingsStart.Value;
-                var endDate = dtpCustomerRankingsEnd.Value;
-                var topN = (int)nudCustomerTopN.Value;
-                
-                // 获取客户排名数据
-                var rankings = _salesReportService.GetCustomerRankings(startDate, endDate, topN);
-                dgvCustomerRankings.DataSource = rankings;
-                
-                // 更新统计信息（添加空引用检查）
-                UpdateCustomerRankingsStatistics(rankings);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"加载客户排名失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                Cursor = Cursors.Default;
-            }
-        }
-
-        private void LoadProductRankings()
-        {
-            try
-            {
-                // 添加严格的空引用检查
-                if (dtpProductRankingsStart == null || dtpProductRankingsEnd == null || 
-                    nudProductTopN == null || dgvProductRankings == null)
-                {
-                    MessageBox.Show("产品排名相关控件未正确初始化", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                
-                Cursor = Cursors.WaitCursor;
-                
-                // 获取日期范围和前N个产品数
-                var startDate = dtpProductRankingsStart.Value;
-                var endDate = dtpProductRankingsEnd.Value;
-                var topN = (int)nudProductTopN.Value;
-                
-                // 获取产品排名数据
-                var rankings = _salesReportService.GetProductRankings(startDate, endDate, topN);
-                dgvProductRankings.DataSource = rankings;
-                
-                // 更新统计信息（添加空引用检查）
-                UpdateProductRankingsStatistics(rankings);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"加载产品排名失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                Cursor = Cursors.Default;
-            }
-        }
-
-        private void UpdateCustomerRankingsStatistics(List<CustomerRankingModel> rankings)
-        {
-            // 添加空引用检查
-            if (rankings == null || lblCustomerCount == null || lblCustomerTotalSales == null)
-                return;
-                
-            var totalSales = rankings.Sum(r => r.TotalSpent); // 修正属性名
-            var customerCount = rankings.Count;
-            
-            // 更新UI标签
-            lblCustomerTotalSales.Text = $"{totalSales:C}";
-            lblCustomerCount.Text = customerCount.ToString();
-        }
-
-        private void UpdateProductRankingsStatistics(List<ProductRankingModel> rankings)
-        {
-            // 添加空引用检查
-            if (rankings == null || lblProductRankCount == null || lblProductRankTotalSales == null)
-                return;
-                
-            var totalSales = rankings.Sum(r => r.SalesAmount); // 修正属性名
-            var productCount = rankings.Count;
-            
-            // 更新UI标签
-            lblProductRankTotalSales.Text = $"{totalSales:C}";
-            lblProductRankCount.Text = productCount.ToString();
         }
     }
 }

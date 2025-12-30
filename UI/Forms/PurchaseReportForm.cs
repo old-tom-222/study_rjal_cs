@@ -24,8 +24,6 @@ namespace CSproject.UI.Forms
             // 初始化日期控件
             dtpProductPurchaseStart.Value = DateTime.Now.AddDays(-30);
             dtpProductPurchaseEnd.Value = DateTime.Now;
-            dtpSupplierPerformanceStart.Value = DateTime.Now.AddDays(-90);
-            dtpSupplierPerformanceEnd.Value = DateTime.Now;
             dtpPurchaseTrendStart.Value = DateTime.Now.AddMonths(-3);
             dtpPurchaseTrendEnd.Value = DateTime.Now;
             
@@ -48,18 +46,6 @@ namespace CSproject.UI.Forms
                 new DataGridViewTextBoxColumn { Name = "LastPurchaseDate", HeaderText = "最近采购日期", DataPropertyName = "LastPurchaseDate", Width = 120 }
             );
 
-            // 初始化供应商表现报表数据网格
-            dgvSupplierPerformance.AutoGenerateColumns = false;
-            dgvSupplierPerformance.Columns.AddRange(
-                new DataGridViewTextBoxColumn { Name = "SupplierId", HeaderText = "供应商ID", DataPropertyName = "SupplierId", Width = 80 },
-                new DataGridViewTextBoxColumn { Name = "SupplierName", HeaderText = "供应商名称", DataPropertyName = "SupplierName", Width = 180 },
-                new DataGridViewTextBoxColumn { Name = "PurchaseCount", HeaderText = "采购次数", DataPropertyName = "PurchaseCount", Width = 100 },
-                new DataGridViewTextBoxColumn { Name = "TotalAmount", HeaderText = "采购金额", DataPropertyName = "TotalAmount", Width = 100 },
-                new DataGridViewTextBoxColumn { Name = "ProductCount", HeaderText = "产品种类数", DataPropertyName = "ProductCount", Width = 100 },
-                new DataGridViewTextBoxColumn { Name = "AvgDeliveryTime", HeaderText = "平均交货时间(天)", DataPropertyName = "AvgDeliveryTime", Width = 120 },
-                new DataGridViewTextBoxColumn { Name = "QualityScore", HeaderText = "质量评分", DataPropertyName = "QualityScore", Width = 80 }
-            );
-
             // 初始化采购趋势报表数据网格
             dgvPurchaseTrend.AutoGenerateColumns = false;
             dgvPurchaseTrend.Columns.AddRange(
@@ -74,11 +60,6 @@ namespace CSproject.UI.Forms
         private void BtnLoadProductPurchase_Click(object sender, EventArgs e)
         {
             LoadProductPurchaseReport();
-        }
-
-        private void BtnLoadSupplierPerformance_Click(object sender, EventArgs e)
-        {
-            LoadSupplierPerformanceReport();
         }
 
         private void BtnLoadTrendReport_Click(object sender, EventArgs e)
@@ -106,33 +87,6 @@ namespace CSproject.UI.Forms
             catch (Exception ex)
             {
                 MessageBox.Show(string.Format("加载产品采购报表失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                Cursor = Cursors.Default;
-            }
-        }
-
-        private void LoadSupplierPerformanceReport()
-        {
-            try
-            {
-                Cursor = Cursors.WaitCursor;
-                
-                // 获取日期范围
-                var startDate = dtpSupplierPerformanceStart.Value;
-                var endDate = dtpSupplierPerformanceEnd.Value;
-                
-                // 获取供应商表现数据
-                var supplierPerformance = _purchaseReportService.GetSupplierPerformanceReport(startDate, endDate);
-                dgvSupplierPerformance.DataSource = supplierPerformance;
-                
-                // 更新统计信息
-                UpdateSupplierPerformanceStatistics(supplierPerformance);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(string.Format("加载供应商表现报表失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -192,26 +146,6 @@ namespace CSproject.UI.Forms
             lblTotalQuantity.Text = totalQuantity.ToString();
         }
 
-        private void UpdateSupplierPerformanceStatistics(List<SupplierPerformanceReportModel> supplierData)
-        {
-            if (supplierData.Count == 0)
-            {
-                lblSupplierTotalAmount.Text = "0.00";
-                lblSupplierCount.Text = "0";
-                return;
-            }
-            
-            var totalAmount = supplierData.Sum(item => item.TotalSpent);
-            var supplierCount = supplierData.Count;
-            var avgDeliveryTime = supplierData.Average(item => item.AverageDeliveryTimeDays);
-            var avgQualityScore = supplierData.Average(item => item.ComplianceRate);
-            
-            lblSupplierTotalAmount.Text = totalAmount.ToString("F2");
-            lblSupplierCount.Text = supplierCount.ToString();
-            lblAvgDeliveryTime.Text = avgDeliveryTime.ToString("F1");
-            lblAvgQualityScore.Text = avgQualityScore.ToString("F1");
-        }
-
         private void UpdateTrendStatistics(List<MonthlyTrendModel> trendData)
         {
             if (trendData.Count == 0)
@@ -232,11 +166,6 @@ namespace CSproject.UI.Forms
         private void BtnExportProductPurchase_Click(object sender, EventArgs e)
         {
             ExportToExcel(dgvProductPurchase, "产品采购报表");
-        }
-
-        private void BtnExportSupplierPerformance_Click(object sender, EventArgs e)
-        {
-            ExportToExcel(dgvSupplierPerformance, "供应商表现报表");
         }
 
         private void BtnExportTrendReport_Click(object sender, EventArgs e)
@@ -313,16 +242,6 @@ namespace CSproject.UI.Forms
         }
 
         /// <summary>
-        /// 加载供应商表现报表按钮点击事件处理方法
-        /// </summary>
-        /// <param name="sender">事件源</param>
-        /// <param name="e">事件参数</param>
-        private void BtnLoadSupplierPerformanceClick(object sender, EventArgs e)
-        {
-            LoadSupplierPerformanceReport();
-        }
-
-        /// <summary>
         /// 加载采购趋势报表按钮点击事件处理方法
         /// </summary>
         /// <param name="sender">事件源</param>
@@ -330,49 +249,6 @@ namespace CSproject.UI.Forms
         private void BtnLoadTrendReportClick(object sender, EventArgs e)
         {
             LoadPurchaseTrendReport();
-        }
-
-        /// <summary>
-        /// 导出供应商表现报表按钮点击事件处理方法
-        /// </summary>
-        /// <param name="sender">事件源</param>
-        /// <param name="e">事件参数</param>
-        private void BtnExportSupplierPerformanceClick(object sender, EventArgs e)
-        {
-            try
-            {
-                // 检查是否有数据可导出
-                if (dgvSupplierPerformance.DataSource == null || dgvSupplierPerformance.Rows.Count == 0)
-                {
-                    MessageBox.Show("没有可导出的数据", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    return;
-                }
-
-                // 显示保存文件对话框
-                using (SaveFileDialog saveFileDialog = new SaveFileDialog())
-                {
-                    saveFileDialog.Filter = "Excel文件|*.xlsx|CSV文件|*.csv";                    
-                    saveFileDialog.FileName = string.Format("供应商表现报表_{0}", DateTime.Now.ToString("yyyyMMdd_HHmmss"));
-
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        // 此处应该添加实际的导出逻辑
-                        // 为了修复编译错误，这里只添加框架代码
-                        Cursor = Cursors.WaitCursor;
-                        // 模拟导出操作
-                        System.Threading.Thread.Sleep(500);
-                        MessageBox.Show(string.Format("报表已成功导出至: {0}", saveFileDialog.FileName), "成功", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(string.Format("导出报表失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                Cursor = Cursors.Default;
-            }
         }
 
         /// <summary>

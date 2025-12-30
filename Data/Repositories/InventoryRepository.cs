@@ -169,49 +169,118 @@ namespace CSproject.Data.Repositories
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
                 connection.Open();
+                UpdateInventory(productId, warehouseId, quantityChange, connection);
+            }
+        }
+        
+        // 重载方法：支持事务
+        public void UpdateInventory(int productId, int warehouseId, int quantityChange, MySqlConnection connection)
+        {
+            UpdateInventory(productId, warehouseId, quantityChange, connection, null);
+        }
+        
+        // 重载方法：支持事务和事务对象
+        public void UpdateInventory(int productId, int warehouseId, int quantityChange, MySqlConnection connection, MySqlTransaction transaction)
+        {
+            // 检查库存记录是否存在
+            string checkSql = @"SELECT quantity FROM inventory 
+                               WHERE product_id = @productId AND warehouse_id = @warehouseId";
+            MySqlCommand checkCmd = new MySqlCommand(checkSql, connection, transaction);
+            checkCmd.Parameters.AddWithValue("@productId", productId);
+            checkCmd.Parameters.AddWithValue("@warehouseId", warehouseId);
+            
+            object result = checkCmd.ExecuteScalar();
+            
+            if (result != null)
+            {
+                // 库存记录存在，更新数量
+                int currentQuantity = Convert.ToInt32(result);
+                int newQuantity = currentQuantity + quantityChange;
                 
-                // 检查库存记录是否存在
-                string checkSql = @"SELECT quantity FROM inventory 
+                string updateSql = @"UPDATE inventory 
+                                   SET quantity = @newQuantity
                                    WHERE product_id = @productId AND warehouse_id = @warehouseId";
-                MySqlCommand checkCmd = new MySqlCommand(checkSql, connection);
-                checkCmd.Parameters.AddWithValue("@productId", productId);
-                checkCmd.Parameters.AddWithValue("@warehouseId", warehouseId);
+                MySqlCommand updateCmd = new MySqlCommand(updateSql, connection, transaction);
+                updateCmd.Parameters.AddWithValue("@newQuantity", newQuantity);
+                updateCmd.Parameters.AddWithValue("@productId", productId);
+                updateCmd.Parameters.AddWithValue("@warehouseId", warehouseId);
                 
-                object result = checkCmd.ExecuteScalar();
+                updateCmd.ExecuteNonQuery();
+            }
+            else
+            {
+                // 库存记录不存在，创建新记录
+                string insertSql = @"INSERT INTO inventory (product_id, warehouse_id, quantity)
+                                   VALUES (@productId, @warehouseId, @quantity)";
+                MySqlCommand insertCmd = new MySqlCommand(insertSql, connection, transaction);
+                insertCmd.Parameters.AddWithValue("@productId", productId);
+                insertCmd.Parameters.AddWithValue("@warehouseId", warehouseId);
+                insertCmd.Parameters.AddWithValue("@quantity", quantityChange);
                 
-                if (result != null)
-                {
-                    // 库存记录存在，更新数量
-                    int currentQuantity = Convert.ToInt32(result);
-                    int newQuantity = currentQuantity + quantityChange;
-                    
-                    string updateSql = @"UPDATE inventory 
-                                       SET quantity = @newQuantity
-                                       WHERE product_id = @productId AND warehouse_id = @warehouseId";
-                    MySqlCommand updateCmd = new MySqlCommand(updateSql, connection);
-                    updateCmd.Parameters.AddWithValue("@newQuantity", newQuantity);
-                    updateCmd.Parameters.AddWithValue("@productId", productId);
-                    updateCmd.Parameters.AddWithValue("@warehouseId", warehouseId);
-                    
-                    updateCmd.ExecuteNonQuery();
-                }
-                else
-                {
-                    // 库存记录不存在，创建新记录
-                    string insertSql = @"INSERT INTO inventory (product_id, warehouse_id, quantity)
-                                       VALUES (@productId, @warehouseId, @quantity)";
-                    MySqlCommand insertCmd = new MySqlCommand(insertSql, connection);
-                    insertCmd.Parameters.AddWithValue("@productId", productId);
-                    insertCmd.Parameters.AddWithValue("@warehouseId", warehouseId);
-                    insertCmd.Parameters.AddWithValue("@quantity", quantityChange);
-                    
-                    insertCmd.ExecuteNonQuery();
-                }
-                
-                // 记录库存流水
-                var transactionRepo = new InventoryTransactionRepository();
+                insertCmd.ExecuteNonQuery();
+            }
+            
+            // 记录库存流水
+            var transactionRepo = new InventoryTransactionRepository();
+            if (transaction != null)
+            {
+                // 在事务中，使用同一个连接和事务对象
+                transactionRepo.AddTransaction(productId, warehouseId, quantityChange, "采购入库", "采购订单", "采购订单完成后自动入库", connection, transaction);
+            }
+            else
+            {
+                // 不在事务中，使用默认方式
                 transactionRepo.AddTransaction(productId, warehouseId, quantityChange, "采购入库", "采购订单", "采购订单完成后自动入库");
             }
+        }
+        
+        /// <summary>
+        /// 获取当前库存数量
+        /// </summary>
+        /// <param name="productId">产品ID</param>
+        /// <param name="warehouseId">仓库ID</param>
+        /// <returns>当前库存数量</returns>
+        public int GetCurrentStock(int productId, int warehouseId)
+        {
+            string connectionString = DbHelper.GetConnectionString();
+            
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+                return GetCurrentStock(productId, warehouseId, connection);
+            }
+        }
+        
+        /// <summary>
+        /// 获取当前库存数量（支持事务）
+        /// </summary>
+        /// <param name="productId">产品ID</param>
+        /// <param name="warehouseId">仓库ID</param>
+        /// <param name="connection">数据库连接</param>
+        /// <returns>当前库存数量</returns>
+        public int GetCurrentStock(int productId, int warehouseId, MySqlConnection connection)
+        {
+            return GetCurrentStock(productId, warehouseId, connection, null);
+        }
+        
+        /// <summary>
+        /// 获取当前库存数量（支持事务和事务对象）
+        /// </summary>
+        /// <param name="productId">产品ID</param>
+        /// <param name="warehouseId">仓库ID</param>
+        /// <param name="connection">数据库连接</param>
+        /// <param name="transaction">事务对象</param>
+        /// <returns>当前库存数量</returns>
+        public int GetCurrentStock(int productId, int warehouseId, MySqlConnection connection, MySqlTransaction transaction)
+        {
+            string sql = @"SELECT quantity FROM inventory 
+                           WHERE product_id = @productId AND warehouse_id = @warehouseId";
+            MySqlCommand cmd = new MySqlCommand(sql, connection, transaction);
+            cmd.Parameters.AddWithValue("@productId", productId);
+            cmd.Parameters.AddWithValue("@warehouseId", warehouseId);
+            
+            object result = cmd.ExecuteScalar();
+            return result != null ? Convert.ToInt32(result) : 0;
         }
         
         /// <summary>

@@ -3,16 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using CSproject.Business.Models;
 using CSproject.Data.Repositories;
+using MySql.Data.MySqlClient;
+using CSproject.Data.Helpers;
 
 namespace CSproject.Business.Services
 {
     public class PurchaseReportService
     {
         private readonly InventoryTransactionRepository _transactionRepo;
+        private readonly PurchaseOrderRepository _purchaseOrderRepo;
 
         public PurchaseReportService()
         {
             _transactionRepo = new InventoryTransactionRepository();
+            _purchaseOrderRepo = new PurchaseOrderRepository();
         }
 
         /// <summary>
@@ -20,74 +24,61 @@ namespace CSproject.Business.Services
         /// </summary>
         public List<PurchaseReportModel> GetProductPurchaseReport(DateTime startDate, DateTime endDate)
         {
-            // 获取时间范围内的所有交易记录
-            var allTransactions = _transactionRepo.GetTransactions(from: startDate, to: endDate);
-            // 筛选出采购类型的交易记录
-            var purchaseTransactions = allTransactions.Where(t => t.Type == "purchase").ToList();
-            
-            // 按产品分组统计
-            var productGroups = purchaseTransactions.GroupBy(t => t.ProductId);
+            string connectionString = DbHelper.GetConnectionString();
             var reportItems = new List<PurchaseReportModel>();
-
-            foreach (var group in productGroups)
-            {
-                int totalQuantity = group.Sum(t => t.ChangeQty); // 采购是正数
-                decimal averageCost = 0; // 实际应用中需要从采购订单获取价格信息
-                decimal totalCost = averageCost * totalQuantity;
-
-                var reportItem = new PurchaseReportModel
-                {
-                    ProductId = group.Key,
-                    ProductSku = group.First().ProductSku,
-                    ProductName = group.First().ProductName,
-                    QuantityPurchased = totalQuantity,
-                    TotalCost = totalCost,
-                    AverageCost = averageCost,
-                    StartDate = startDate,
-                    EndDate = endDate,
-                    PurchaseOrderCount = group.Select(t => t.Reference).Distinct().Count(),
-                    // 其他属性可以从其他数据源获取
-                };
-
-                reportItems.Add(reportItem);
-            }
-
-            return reportItems.OrderByDescending(r => r.QuantityPurchased).ToList();
-        }
-
-        /// <summary>
-        /// 获取供应商表现报表
-        /// </summary>
-        public List<SupplierPerformanceReportModel> GetSupplierPerformanceReport(DateTime startDate, DateTime endDate)
-        {
-            // 实际应用中需要从采购订单和收货记录获取供应商表现数据
-            // 这里模拟生成一些测试数据
-            var reportItems = new List<SupplierPerformanceReportModel>();
             
-            // 模拟几个供应商的数据
-            var supplierNames = new[] { "供应商A", "供应商B", "供应商C", "供应商D", "供应商E" };
-            
-            for (int i = 1; i <= supplierNames.Length; i++)
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                int totalOrders = new Random(i).Next(5, 20);
-                decimal totalSpent = new Random(i + 10).Next(10000, 100000);
-                int totalItemsReceived = totalOrders * new Random(i + 20).Next(10, 50);
-                decimal avgDeliveryDays = new Random(i + 30).Next(1, 10) + (decimal)new Random(i + 40).NextDouble();
-                decimal complianceRate = new Random(i + 50).Next(70, 100) + (decimal)new Random(i + 60).NextDouble();
-
-                reportItems.Add(new SupplierPerformanceReportModel
+                connection.Open();
+                
+                // 直接从purchase_order和purchase_order_item表获取数据
+                string query = @"
+                    SELECT 
+                        p.id AS ProductId,
+                        p.sku AS ProductSku,
+                        p.name AS ProductName,
+                        SUM(poi.quantity) AS PurchaseQuantity,
+                        SUM(poi.quantity * poi.unit_price) AS TotalAmount,
+                        AVG(poi.unit_price) AS AveragePrice,
+                        MAX(po.created_at) AS LastPurchaseDate
+                    FROM purchase_order po
+                    INNER JOIN purchase_order_item poi ON po.id = poi.order_id
+                    INNER JOIN product p ON poi.product_id = p.id
+                    WHERE po.created_at BETWEEN @StartDate AND @EndDate
+                    GROUP BY p.id, p.sku, p.name
+                    ORDER BY TotalAmount DESC
+                ";
+                
+                using (MySqlCommand command = new MySqlCommand(query, connection))
                 {
-                    SupplierId = i,
-                    SupplierName = supplierNames[i - 1],
-                    TotalOrders = totalOrders,
-                    TotalSpent = totalSpent,
-                    TotalItemsReceived = totalItemsReceived,
-                    AverageDeliveryTimeDays = Math.Round(avgDeliveryDays, 2),
-                    ComplianceRate = Math.Round(complianceRate, 2)
-                });
+                    command.Parameters.AddWithValue("@StartDate", startDate);
+                    command.Parameters.AddWithValue("@EndDate", endDate);
+                    
+                    using (MySqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var reportItem = new PurchaseReportModel
+                            {
+                                ProductId = Convert.ToInt32(reader["ProductId"]),
+                                ProductSku = reader["ProductSku"].ToString(),
+                                ProductName = reader["ProductName"].ToString(),
+                                QuantityPurchased = Convert.ToInt32(reader["PurchaseQuantity"]),
+                                TotalCost = Convert.ToDecimal(reader["TotalAmount"]),
+                                AverageCost = Convert.ToDecimal(reader["AveragePrice"]),
+                                StartDate = startDate,
+                                EndDate = endDate,
+                                LastPurchaseDate = Convert.ToDateTime(reader["LastPurchaseDate"]),
+                                PurchaseOrderCount = 0 // 可以根据需要查询
+                            };
+                            
+                            reportItems.Add(reportItem);
+                        }
+                    }
+                }
             }
-
-            return reportItems.OrderByDescending(r => r.ComplianceRate).ToList();
+            
+            return reportItems;
         }
 
         /// <summary>

@@ -129,7 +129,7 @@ namespace CSproject.Data.Helpers
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // 记录错误但不阻止应用程序启动
             }

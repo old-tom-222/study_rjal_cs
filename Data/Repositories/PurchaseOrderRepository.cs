@@ -213,7 +213,7 @@ namespace CSproject.Data.Repositories
         /// <param name="transaction"></param>
         /// <param name="productName"></param>
         /// <returns></returns>
-        private int FindOrCreateProduct(MySqlConnection connection, MySqlTransaction transaction, string productName)
+        private int FindOrCreateProduct(MySqlConnection connection, MySqlTransaction transaction, string productName, decimal unitPrice)
         {
             // 先尝试查找产品
             string findQuery = "SELECT id FROM product WHERE name = @name";
@@ -223,19 +223,36 @@ namespace CSproject.Data.Repositories
                 object result = command.ExecuteScalar();
                 if (result != null)
                 {
-                    return Convert.ToInt32(result);
+                    // 产品已存在，更新其成本价和售价
+                    int productId = Convert.ToInt32(result);
+                    string updateQuery = "UPDATE product SET cost_price = @unitPrice, sale_price = @unitPrice WHERE id = @productId";
+                    using (MySqlCommand updateCmd = new MySqlCommand(updateQuery, connection, transaction))
+                    {
+                        updateCmd.Parameters.AddWithValue("@unitPrice", unitPrice);
+                        updateCmd.Parameters.AddWithValue("@productId", productId);
+                        updateCmd.ExecuteNonQuery();
+                    }
+                    return productId;
                 }
             }
             
             // 获取或创建默认分类
             int categoryId = FindOrCreateDefaultCategory(connection, transaction);
             
-            // 如果不存在，创建新产品
-            string createQuery = "INSERT INTO product (name, category_id) VALUES (@name, @categoryId)";
+            // 生成唯一的SKU
+            string sku = GenerateUniqueSKU(productName);
+            
+            // 如果不存在，创建新产品（填写所有必填字段，并使用传入的价格）
+            string createQuery = "INSERT INTO product (sku, name, category_id, cost_price, sale_price, safe_stock, status) " +
+                                 "VALUES (@sku, @name, @categoryId, @unitPrice, @unitPrice, @safeStock, @status)";
             using (MySqlCommand command = new MySqlCommand(createQuery, connection, transaction))
             {
+                command.Parameters.AddWithValue("@sku", sku);
                 command.Parameters.AddWithValue("@name", productName);
                 command.Parameters.AddWithValue("@categoryId", categoryId);
+                command.Parameters.AddWithValue("@unitPrice", unitPrice); // 使用传入的价格作为成本价和售价
+                command.Parameters.AddWithValue("@safeStock", 10); // 默认安全库存
+                command.Parameters.AddWithValue("@status", 1); // 默认启用状态
                 command.ExecuteNonQuery();
                 return Convert.ToInt32(command.LastInsertedId);
             }
@@ -315,8 +332,8 @@ namespace CSproject.Data.Repositories
                 {
                     try
                     {
-                        // 查找或创建产品
-                        int productId = FindOrCreateProduct(connection, transaction, productName);
+                        // 查找或创建产品（传入unitPrice参数）
+                        int productId = FindOrCreateProduct(connection, transaction, productName, unitPrice);
 
                         // 添加订单产品明细
                         string query = "INSERT INTO purchase_order_item (order_id, product_id, quantity, unit_price) VALUES (@orderId, @productId, @quantity, @unitPrice)";
@@ -615,7 +632,64 @@ namespace CSproject.Data.Repositories
                 {
                     try
                     {
-                        // 先删除订单详情
+                        // 1. 获取订单信息，包括仓库ID和状态
+                        int warehouseId = 0;
+                        string status = string.Empty;
+                        string getOrderQuery = "SELECT warehouse_id, status FROM purchase_order WHERE id = @orderId";
+                        using (MySqlCommand orderCmd = new MySqlCommand(getOrderQuery, connection, transaction))
+                        {
+                            orderCmd.Parameters.AddWithValue("@orderId", orderId);
+                            using (MySqlDataReader reader = orderCmd.ExecuteReader())
+                            {
+                                if (reader.Read())
+                                {
+                                    warehouseId = Convert.ToInt32(reader["warehouse_id"]);
+                                    status = reader["status"].ToString();
+                                }
+                            }
+                        }
+                        
+                        // 2. 获取订单的产品明细
+                        List<Tuple<int, int>> orderItems = new List<Tuple<int, int>>();
+                        string getItemsQuery = "SELECT product_id, quantity FROM purchase_order_item WHERE order_id = @orderId";
+                        using (MySqlCommand itemsCmd = new MySqlCommand(getItemsQuery, connection, transaction))
+                        {
+                            itemsCmd.Parameters.AddWithValue("@orderId", orderId);
+                            using (MySqlDataReader reader = itemsCmd.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    int productId = Convert.ToInt32(reader["product_id"]);
+                                    int quantity = Convert.ToInt32(reader["quantity"]);
+                                    orderItems.Add(new Tuple<int, int>(productId, quantity));
+                                }
+                            }
+                        }
+                        
+                        // 3. 如果订单状态为已完成，先更新库存（减去该订单的采购数量）
+                        if (status == "已完成" && warehouseId > 0)
+                        {
+                            foreach (var item in orderItems)
+                            {
+                                // 减去库存
+                                _inventoryRepo.UpdateInventory(item.Item1, warehouseId, -item.Item2, connection, transaction);
+                                
+                                // 检查库存是否为0
+                                int currentStock = _inventoryRepo.GetCurrentStock(item.Item1, warehouseId, connection, transaction);
+                                if (currentStock <= 0)
+                                {
+                                    // 如果库存为0，删除产品
+                                    string deleteProductQuery = "DELETE FROM product WHERE id = @productId";
+                                    using (MySqlCommand deleteCmd = new MySqlCommand(deleteProductQuery, connection, transaction))
+                                    {
+                                        deleteCmd.Parameters.AddWithValue("@productId", item.Item1);
+                                        deleteCmd.ExecuteNonQuery();
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // 4. 先删除订单详情
                         string deleteItemsQuery = "DELETE FROM purchase_order_item WHERE order_id = @orderId";
                         using (MySqlCommand command = new MySqlCommand(deleteItemsQuery, connection, transaction))
                         {
@@ -623,7 +697,7 @@ namespace CSproject.Data.Repositories
                             command.ExecuteNonQuery();
                         }
                         
-                        // 再删除订单
+                        // 5. 再删除订单
                         string deleteOrderQuery = "DELETE FROM purchase_order WHERE id = @orderId";
                         using (MySqlCommand command = new MySqlCommand(deleteOrderQuery, connection, transaction))
                         {

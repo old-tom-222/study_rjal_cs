@@ -204,7 +204,7 @@ namespace CSproject.UI.Forms
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 // 记录错误但不中断程序
             }

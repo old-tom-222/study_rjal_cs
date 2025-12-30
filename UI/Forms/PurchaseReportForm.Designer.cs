@@ -44,23 +44,6 @@ namespace CSproject.UI.Forms
             this.label7 = new System.Windows.Forms.Label();
             this.lblTotalQuantity = new System.Windows.Forms.Label();
             this.dgvProductPurchase = new System.Windows.Forms.DataGridView();
-            this.tabSupplierPerformance = new System.Windows.Forms.TabPage();
-            this.btnExportSupplierPerformance = new System.Windows.Forms.Button();
-            this.btnLoadSupplierPerformance = new System.Windows.Forms.Button();
-            this.dtpSupplierPerformanceEnd = new System.Windows.Forms.DateTimePicker();
-            this.dtpSupplierPerformanceStart = new System.Windows.Forms.DateTimePicker();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label6 = new System.Windows.Forms.Label();
-            this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
-            this.label8 = new System.Windows.Forms.Label();
-            this.lblSupplierTotalAmount = new System.Windows.Forms.Label();
-            this.label10 = new System.Windows.Forms.Label();
-            this.lblSupplierCount = new System.Windows.Forms.Label();
-            this.label12 = new System.Windows.Forms.Label();
-            this.lblAvgDeliveryTime = new System.Windows.Forms.Label();
-            this.label17 = new System.Windows.Forms.Label();
-            this.lblAvgQualityScore = new System.Windows.Forms.Label();
-            this.dgvSupplierPerformance = new System.Windows.Forms.DataGridView();
             this.tabTrendReport = new System.Windows.Forms.TabPage();
             this.btnExportTrendReport = new System.Windows.Forms.Button();
             this.btnLoadTrendReport = new System.Windows.Forms.Button();
@@ -82,9 +65,6 @@ namespace CSproject.UI.Forms
             this.tabProductPurchase.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProductPurchase)).BeginInit();
-            this.tabSupplierPerformance.SuspendLayout();
-            this.flowLayoutPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvSupplierPerformance)).BeginInit();
             this.tabTrendReport.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvPurchaseTrend)).BeginInit();
@@ -93,7 +73,6 @@ namespace CSproject.UI.Forms
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tabProductPurchase);
-            this.tabControl1.Controls.Add(this.tabSupplierPerformance);
             this.tabControl1.Controls.Add(this.tabTrendReport);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
@@ -265,192 +244,6 @@ namespace CSproject.UI.Forms
             this.dgvProductPurchase.ReadOnly = true;
             this.dgvProductPurchase.Size = new System.Drawing.Size(776, 332);
             this.dgvProductPurchase.TabIndex = 0;
-            // 
-            // tabSupplierPerformance
-            // 
-            this.tabSupplierPerformance.Controls.Add(this.btnExportSupplierPerformance);
-            this.tabSupplierPerformance.Controls.Add(this.btnLoadSupplierPerformance);
-            this.tabSupplierPerformance.Controls.Add(this.dtpSupplierPerformanceEnd);
-            this.tabSupplierPerformance.Controls.Add(this.dtpSupplierPerformanceStart);
-            this.tabSupplierPerformance.Controls.Add(this.label4);
-            this.tabSupplierPerformance.Controls.Add(this.label6);
-            this.tabSupplierPerformance.Controls.Add(this.flowLayoutPanel2);
-            this.tabSupplierPerformance.Controls.Add(this.dgvSupplierPerformance);
-            this.tabSupplierPerformance.Location = new System.Drawing.Point(4, 22);
-            this.tabSupplierPerformance.Name = "tabSupplierPerformance";
-            this.tabSupplierPerformance.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSupplierPerformance.Size = new System.Drawing.Size(792, 424);
-            this.tabSupplierPerformance.TabIndex = 1;
-            this.tabSupplierPerformance.Text = "供应商表现报表";
-            this.tabSupplierPerformance.UseVisualStyleBackColor = true;
-            // 
-            // btnExportSupplierPerformance
-            // 
-            this.btnExportSupplierPerformance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnExportSupplierPerformance.Location = new System.Drawing.Point(700, 10);
-            this.btnExportSupplierPerformance.Name = "btnExportSupplierPerformance";
-            this.btnExportSupplierPerformance.Size = new System.Drawing.Size(80, 30);
-            this.btnExportSupplierPerformance.TabIndex = 7;
-            this.btnExportSupplierPerformance.Text = "导出";
-            this.btnExportSupplierPerformance.UseVisualStyleBackColor = true;
-            this.btnExportSupplierPerformance.Click += new System.EventHandler(this.BtnExportSupplierPerformanceClick);
-            // 
-            // btnLoadSupplierPerformance
-            // 
-            this.btnLoadSupplierPerformance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnLoadSupplierPerformance.Location = new System.Drawing.Point(610, 10);
-            this.btnLoadSupplierPerformance.Name = "btnLoadSupplierPerformance";
-            this.btnLoadSupplierPerformance.Size = new System.Drawing.Size(80, 30);
-            this.btnLoadSupplierPerformance.TabIndex = 6;
-            this.btnLoadSupplierPerformance.Text = "加载";
-            this.btnLoadSupplierPerformance.UseVisualStyleBackColor = true;
-            this.btnLoadSupplierPerformance.Click += new System.EventHandler(this.BtnLoadSupplierPerformanceClick);
-            // 
-            // dtpSupplierPerformanceEnd
-            // 
-            this.dtpSupplierPerformanceEnd.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpSupplierPerformanceEnd.Location = new System.Drawing.Point(400, 14);
-            this.dtpSupplierPerformanceEnd.Name = "dtpSupplierPerformanceEnd";
-            this.dtpSupplierPerformanceEnd.Size = new System.Drawing.Size(120, 21);
-            this.dtpSupplierPerformanceEnd.TabIndex = 5;
-            // 
-            // dtpSupplierPerformanceStart
-            // 
-            this.dtpSupplierPerformanceStart.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpSupplierPerformanceStart.Location = new System.Drawing.Point(120, 14);
-            this.dtpSupplierPerformanceStart.Name = "dtpSupplierPerformanceStart";
-            this.dtpSupplierPerformanceStart.Size = new System.Drawing.Size(120, 21);
-            this.dtpSupplierPerformanceStart.TabIndex = 4;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 17);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(107, 12);
-            this.label4.TabIndex = 3;
-            this.label4.Text = "采购开始日期：";
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(250, 17);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(107, 12);
-            this.label6.TabIndex = 2;
-            this.label6.Text = "采购结束日期：";
-            // 
-            // flowLayoutPanel2
-            // 
-            this.flowLayoutPanel2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.flowLayoutPanel2.Controls.Add(this.label8);
-            this.flowLayoutPanel2.Controls.Add(this.lblSupplierTotalAmount);
-            this.flowLayoutPanel2.Controls.Add(this.label10);
-            this.flowLayoutPanel2.Controls.Add(this.lblSupplierCount);
-            this.flowLayoutPanel2.Controls.Add(this.label12);
-            this.flowLayoutPanel2.Controls.Add(this.lblAvgDeliveryTime);
-            this.flowLayoutPanel2.Controls.Add(this.label17);
-            this.flowLayoutPanel2.Controls.Add(this.lblAvgQualityScore);
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(6, 45);
-            this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(694, 35);
-            this.flowLayoutPanel2.TabIndex = 1;
-            // 
-            // label8
-            // 
-            this.label8.AutoSize = true;
-            this.label8.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(3, 0);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(77, 17);
-            this.label8.TabIndex = 0;
-            this.label8.Text = "采购总额: ";
-            // 
-            // lblSupplierTotalAmount
-            // 
-            this.lblSupplierTotalAmount.AutoSize = true;
-            this.lblSupplierTotalAmount.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblSupplierTotalAmount.Location = new System.Drawing.Point(86, 0);
-            this.lblSupplierTotalAmount.Name = "lblSupplierTotalAmount";
-            this.lblSupplierTotalAmount.Size = new System.Drawing.Size(41, 17);
-            this.lblSupplierTotalAmount.TabIndex = 1;
-            this.lblSupplierTotalAmount.Text = "0.00";
-            // 
-            // label10
-            // 
-            this.label10.AutoSize = true;
-            this.label10.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label10.Location = new System.Drawing.Point(133, 0);
-            this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(77, 17);
-            this.label10.TabIndex = 2;
-            this.label10.Text = "供应商数: ";
-            // 
-            // lblSupplierCount
-            // 
-            this.lblSupplierCount.AutoSize = true;
-            this.lblSupplierCount.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblSupplierCount.Location = new System.Drawing.Point(216, 0);
-            this.lblSupplierCount.Name = "lblSupplierCount";
-            this.lblSupplierCount.Size = new System.Drawing.Size(17, 17);
-            this.lblSupplierCount.TabIndex = 3;
-            this.lblSupplierCount.Text = "0";
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label12.Location = new System.Drawing.Point(239, 0);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(101, 17);
-            this.label12.TabIndex = 4;
-            this.label12.Text = "平均交货时间: ";
-            // 
-            // lblAvgDeliveryTime
-            // 
-            this.lblAvgDeliveryTime.AutoSize = true;
-            this.lblAvgDeliveryTime.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblAvgDeliveryTime.Location = new System.Drawing.Point(346, 0);
-            this.lblAvgDeliveryTime.Name = "lblAvgDeliveryTime";
-            this.lblAvgDeliveryTime.Size = new System.Drawing.Size(17, 17);
-            this.lblAvgDeliveryTime.TabIndex = 5;
-            this.lblAvgDeliveryTime.Text = "0";
-            // 
-            // label17
-            // 
-            this.label17.AutoSize = true;
-            this.label17.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label17.Location = new System.Drawing.Point(369, 0);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(77, 17);
-            this.label17.TabIndex = 6;
-            this.label17.Text = "质量评分: ";
-            // 
-            // lblAvgQualityScore
-            // 
-            this.lblAvgQualityScore.AutoSize = true;
-            this.lblAvgQualityScore.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblAvgQualityScore.Location = new System.Drawing.Point(452, 0);
-            this.lblAvgQualityScore.Name = "lblAvgQualityScore";
-            this.lblAvgQualityScore.Size = new System.Drawing.Size(17, 17);
-            this.lblAvgQualityScore.TabIndex = 7;
-            this.lblAvgQualityScore.Text = "0";
-            // 
-            // dgvSupplierPerformance
-            // 
-            this.dgvSupplierPerformance.AllowUserToAddRows = false;
-            this.dgvSupplierPerformance.AllowUserToDeleteRows = false;
-            this.dgvSupplierPerformance.AllowUserToOrderColumns = true;
-            this.dgvSupplierPerformance.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dgvSupplierPerformance.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvSupplierPerformance.Location = new System.Drawing.Point(6, 86);
-            this.dgvSupplierPerformance.Name = "dgvSupplierPerformance";
-            this.dgvSupplierPerformance.ReadOnly = true;
-            this.dgvSupplierPerformance.Size = new System.Drawing.Size(776, 332);
-            this.dgvSupplierPerformance.TabIndex = 0;
             // 
             // tabTrendReport
             // 
@@ -651,11 +444,6 @@ namespace CSproject.UI.Forms
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvProductPurchase)).EndInit();
-            this.tabSupplierPerformance.ResumeLayout(false);
-            this.tabSupplierPerformance.PerformLayout();
-            this.flowLayoutPanel2.ResumeLayout(false);
-            this.flowLayoutPanel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvSupplierPerformance)).EndInit();
             this.tabTrendReport.ResumeLayout(false);
             this.tabTrendReport.PerformLayout();
             this.flowLayoutPanel3.ResumeLayout(false);
@@ -669,7 +457,6 @@ namespace CSproject.UI.Forms
 
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabProductPurchase;
-        private System.Windows.Forms.TabPage tabSupplierPerformance;
         private System.Windows.Forms.TabPage tabTrendReport;
         private System.Windows.Forms.DataGridView dgvProductPurchase;
         private System.Windows.Forms.DateTimePicker dtpProductPurchaseStart;
@@ -685,22 +472,6 @@ namespace CSproject.UI.Forms
         private System.Windows.Forms.Label lblProductCount;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label lblTotalQuantity;
-        private System.Windows.Forms.DataGridView dgvSupplierPerformance;
-        private System.Windows.Forms.DateTimePicker dtpSupplierPerformanceStart;
-        private System.Windows.Forms.DateTimePicker dtpSupplierPerformanceEnd;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Button btnLoadSupplierPerformance;
-        private System.Windows.Forms.Button btnExportSupplierPerformance;
-        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel2;
-        private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.Label lblSupplierTotalAmount;
-        private System.Windows.Forms.Label label10;
-        private System.Windows.Forms.Label lblSupplierCount;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.Label lblAvgDeliveryTime;
-        private System.Windows.Forms.Label label17;
-        private System.Windows.Forms.Label lblAvgQualityScore;
         private System.Windows.Forms.DataGridView dgvPurchaseTrend;
         private System.Windows.Forms.DateTimePicker dtpPurchaseTrendStart;
         private System.Windows.Forms.DateTimePicker dtpPurchaseTrendEnd;

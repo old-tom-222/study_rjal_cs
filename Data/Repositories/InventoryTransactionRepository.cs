@@ -30,6 +30,34 @@ namespace CSproject.Data.Repositories
                 }
             }
         }
+        
+        // 重载方法：支持事务
+        public int AddTransaction(int productId, int warehouseId, int changeQty, string type, string reference, string remark, MySqlConnection connection)
+        {
+            return AddTransaction(productId, warehouseId, changeQty, type, reference, remark, connection, null);
+        }
+        
+        // 重载方法：支持事务和事务对象
+        public int AddTransaction(int productId, int warehouseId, int changeQty, string type, string reference, string remark, MySqlConnection connection, MySqlTransaction transaction)
+        {
+            string sql = @"INSERT INTO inventory_transaction(product_id, warehouse_id, change_qty, type, reference, remark)
+                           VALUES(@productId, @warehouseId, @changeQty, @type, @reference, @remark);";
+            using (var cmd = new MySqlCommand(sql, connection, transaction))
+            {
+                cmd.Parameters.AddWithValue("@productId", productId);
+                cmd.Parameters.AddWithValue("@warehouseId", warehouseId);
+                cmd.Parameters.AddWithValue("@changeQty", changeQty);
+                cmd.Parameters.AddWithValue("@type", type ?? "adjust");
+                cmd.Parameters.AddWithValue("@reference", reference ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@remark", remark ?? (object)DBNull.Value);
+                cmd.ExecuteNonQuery();
+                using (var idCmd = new MySqlCommand("SELECT LAST_INSERT_ID();", connection, transaction))
+                {
+                    var idObj = idCmd.ExecuteScalar();
+                    return Convert.ToInt32(idObj);
+                }
+            }
+        }
 
         public List<InventoryTransaction> GetTransactions(int? productId = null, int? warehouseId = null, DateTime? from = null, DateTime? to = null)
         {
