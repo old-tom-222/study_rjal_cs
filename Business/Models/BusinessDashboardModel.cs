@@ -22,7 +22,7 @@ namespace CSproject.Business.Models
         public decimal AverageOrderValue { get; set; }
 
         // 库存统计
-        public int TotalInventoryValue { get; set; }
+        public decimal TotalInventoryValue { get; set; }
         public int LowStockItemsCount { get; set; }
         public int OutOfStockItemsCount { get; set; }
 
@@ -43,6 +43,7 @@ namespace CSproject.Business.Models
         public int QuantitySold { get; set; }
         public decimal TotalRevenue { get; set; }
         public decimal RevenuePercentage { get; set; }
+        public int Rank { get; set; }
     }
 
     public class MonthlyTrendModel

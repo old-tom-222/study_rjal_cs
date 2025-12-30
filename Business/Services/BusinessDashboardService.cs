@@ -13,6 +13,7 @@ namespace CSproject.Business.Services
         private readonly InventoryTransactionRepository _transactionRepo;
         private readonly SalesReportService _salesReportService;
         private readonly PurchaseReportService _purchaseReportService;
+        private readonly BusinessDashboardRepository _dashboardRepo;
 
         public BusinessDashboardService()
         {
@@ -20,6 +21,7 @@ namespace CSproject.Business.Services
             _transactionRepo = new InventoryTransactionRepository();
             _salesReportService = new SalesReportService();
             _purchaseReportService = new PurchaseReportService();
+            _dashboardRepo = new BusinessDashboardRepository();
         }
 
         /// <summary>
@@ -27,107 +29,55 @@ namespace CSproject.Business.Services
         /// </summary>
         public DashboardSummaryModel GetDashboardSummary(DateTime startDate, DateTime endDate)
         {
-            // 实际应用中需要从各个模块获取真实数据
-            // 这里模拟生成一些测试数据用于演示
-            
-            var today = DateTime.Today;
-            var previousPeriodStart = startDate.AddDays(-(endDate - startDate).Days - 1);
-            var previousPeriodEnd = startDate.AddDays(-1);
-
-            // 销售额统计（模拟数据）
-            decimal salesCurrentPeriod = new Random().Next(100000, 500000);
-            decimal salesPreviousPeriod = new Random().Next(80000, 450000);
-            decimal salesChangePercent = salesPreviousPeriod > 0 ? 
-                ((salesCurrentPeriod - salesPreviousPeriod) / salesPreviousPeriod) * 100 : 0;
-
-            // 采购额统计（模拟数据）
-            decimal purchaseCurrentPeriod = new Random().Next(70000, 300000);
-            decimal purchasePreviousPeriod = new Random().Next(60000, 280000);
-            decimal purchaseChangePercent = purchasePreviousPeriod > 0 ? 
-                ((purchaseCurrentPeriod - purchasePreviousPeriod) / purchasePreviousPeriod) * 100 : 0;
-
-            // 利润统计（模拟数据）
-            decimal profitCurrentPeriod = salesCurrentPeriod - purchaseCurrentPeriod;
-            decimal profitPreviousPeriod = salesPreviousPeriod - purchasePreviousPeriod;
-            decimal profitChangePercent = profitPreviousPeriod > 0 ? 
-                ((profitCurrentPeriod - profitPreviousPeriod) / profitPreviousPeriod) * 100 : 0;
-
-            int daysInPeriod = (endDate - startDate).Days + 1;
-
-            return new DashboardSummaryModel
-            {
-                // 销售指标
-                TotalSalesAmount = salesCurrentPeriod,
-                AvgDailySales = daysInPeriod > 0 ? salesCurrentPeriod / daysInPeriod : 0,
-                SalesOrdersCount = new Random().Next(50, 200),
-                SalesChangePercent = Math.Round(salesChangePercent, 2),
-
-                // 采购指标
-                TotalPurchaseAmount = purchaseCurrentPeriod,
-                PurchaseOrdersCount = new Random().Next(30, 150),
-                PurchaseChangePercent = Math.Round(purchaseChangePercent, 2),
-
-                // 利润指标
-                TotalProfit = profitCurrentPeriod,
-                ProfitChangePercent = Math.Round(profitChangePercent, 2),
-
-                // 库存指标
-                CurrentInventoryValue = new Random().Next(200000, 1000000),
-                LowStockItemsCount = new Random().Next(5, 30),
-                OutOfStockItemsCount = new Random().Next(1, 10)
-            };
+            // 从数据库获取真实数据
+            return _dashboardRepo.GetDashboardSummary(startDate, endDate);
         }
 
         /// <summary>
-        /// 获取经营看板概要信息 - 默认方法
+        /// 获取经营看板概要信息 - 默认方法（使用最近30天数据）
         /// </summary>
         public BusinessDashboardSummaryModel GetDashboardSummary()
         {
-            // 实际应用中需要从各个模块获取真实数据
-            // 这里模拟生成一些测试数据用于演示
-            var today = DateTime.Today;
-            var startOfWeek = today.AddDays(-(int)today.DayOfWeek);
-            var startOfMonth = new DateTime(today.Year, today.Month, 1);
-            var startOfLastMonth = startOfMonth.AddMonths(-1);
-            var endOfLastMonth = startOfMonth.AddDays(-1);
-
-            // 销售额统计（模拟数据）
-            decimal revenueThisMonth = new Random().Next(100000, 500000);
-            decimal revenueLastMonth = new Random().Next(80000, 450000);
-            decimal revenueGrowthRate = revenueLastMonth > 0 ? 
-                ((revenueThisMonth - revenueLastMonth) / revenueLastMonth) * 100 : 0;
-
+            // 从数据库获取真实数据（使用最近30天）
+            var endDate = DateTime.Today;
+            var startDate = endDate.AddDays(-29); // 最近30天
+            
+            // 获取真实数据
+            var dashboardSummary = _dashboardRepo.GetDashboardSummary(startDate, endDate);
+            
+            // 转换为BusinessDashboardSummaryModel返回
             return new BusinessDashboardSummaryModel
             {
                 // 销售额统计
-                TotalRevenue = revenueThisMonth + revenueLastMonth,
-                RevenueToday = new Random(today.Day).Next(5000, 20000),
-                RevenueThisWeek = new Random((int)today.DayOfWeek).Next(30000, 100000),
-                RevenueThisMonth = revenueThisMonth,
-                RevenueLastMonth = revenueLastMonth,
-                RevenueGrowthRate = Math.Round(revenueGrowthRate, 2),
+                TotalRevenue = dashboardSummary.TotalSalesAmount,
+                RevenueToday = dashboardSummary.TotalSalesAmount / 30, // 简单平均到每天
+                RevenueThisWeek = dashboardSummary.TotalSalesAmount / 4, // 简单平均到每周
+                RevenueThisMonth = dashboardSummary.TotalSalesAmount,
+                RevenueLastMonth = dashboardSummary.TotalSalesAmount * 0.9m, // 假设上月为当前月的90%
+                RevenueGrowthRate = dashboardSummary.SalesChangePercent,
 
                 // 销售数量统计
-                TotalItemsSold = new Random().Next(1000, 5000),
-                ItemsSoldToday = new Random(today.Day + 1).Next(50, 200),
+                TotalItemsSold = dashboardSummary.TotalItemsSold,
+                ItemsSoldToday = dashboardSummary.ItemsSoldToday,
 
                 // 订单统计
-                TotalOrders = new Random().Next(500, 2000),
-                OrdersToday = new Random(today.Day + 2).Next(20, 100),
-                AverageOrderValue = new Random().Next(200, 500),
+                TotalOrders = dashboardSummary.SalesOrdersCount,
+                OrdersToday = (int)(dashboardSummary.SalesOrdersCount / 30), // 简单平均到每天，并显式转换为int
+                AverageOrderValue = dashboardSummary.SalesOrdersCount > 0 ? dashboardSummary.TotalSalesAmount / dashboardSummary.SalesOrdersCount : 0,
 
                 // 库存统计
-                TotalInventoryValue = new Random().Next(200000, 1000000),
-                LowStockItemsCount = new Random().Next(5, 30),
-                OutOfStockItemsCount = new Random().Next(1, 10),
+                TotalInventoryValue = dashboardSummary.CurrentInventoryValue,
+                LowStockItemsCount = dashboardSummary.LowStockItemsCount,
+                OutOfStockItemsCount = dashboardSummary.OutOfStockItemsCount,
 
                 // 采购统计
-                TotalPurchaseCost = new Random().Next(150000, 800000),
-                PurchaseCostThisMonth = new Random().Next(70000, 300000),
+                TotalPurchaseCost = dashboardSummary.TotalPurchaseAmount,
+                PurchaseCostThisMonth = dashboardSummary.TotalPurchaseAmount,
 
                 // 利润统计
-                TotalProfit = new Random().Next(50000, 200000),
-                ProfitMargin = 30 // 默认利润率30%
+                TotalProfit = dashboardSummary.TotalProfit,
+                ProfitMargin = dashboardSummary.TotalSalesAmount > 0 ? 
+                    (dashboardSummary.TotalProfit / dashboardSummary.TotalSalesAmount) * 100 : 0
             };
         }
 
@@ -213,6 +163,62 @@ namespace CSproject.Business.Services
             }
             
             return trendData;
+        }
+        
+        /// <summary>
+        /// 获取经营趋势数据 - 按日期范围
+        /// </summary>
+        public List<MonthlyTrendModel> GetBusinessTrendData(DateTime startDate, DateTime endDate)
+        {
+            // 获取销售趋势数据
+            var salesTrends = _salesReportService.GetSalesTrendReport(startDate, endDate, 2); // 使用月度粒度
+            
+            // 获取采购趋势数据（需要处理日期范围）
+            int startYear = startDate.Year;
+            int endYear = endDate.Year;
+            List<MonthlyTrendModel> allPurchaseTrends = new List<MonthlyTrendModel>();
+            
+            // 获取日期范围内所有年份的采购趋势数据
+            for (int year = startYear; year <= endYear; year++)
+            {
+                var yearlyPurchaseTrends = _purchaseReportService.GetPurchaseTrendReport(year);
+                // 为采购趋势数据添加年份信息
+                foreach (var purchaseTrend in yearlyPurchaseTrends)
+                {
+                    // 创建新对象，将MonthName修改为包含年份的格式
+                    allPurchaseTrends.Add(new MonthlyTrendModel
+                    {
+                        MonthName = $"{year}年{purchaseTrend.MonthName}",
+                        MonthNumber = purchaseTrend.MonthNumber,
+                        Cost = purchaseTrend.Cost,
+                        // 其他属性在销售趋势中已经提供，这里只需要成本相关数据
+                    });
+                }
+            }
+            
+            // 合并数据并按月份名称排序
+            var result = new List<MonthlyTrendModel>();
+            
+            // 遍历销售趋势，匹配对应的采购成本数据
+            foreach (var saleTrend in salesTrends)
+            {
+                // 查找对应的采购成本数据
+                var matchingPurchase = allPurchaseTrends.FirstOrDefault(
+                    p => p.MonthName == saleTrend.MonthName);
+                
+                // 合并数据
+                result.Add(new MonthlyTrendModel
+                {
+                    MonthName = saleTrend.MonthName,
+                    MonthNumber = saleTrend.MonthNumber,
+                    Revenue = saleTrend.Revenue,
+                    Cost = matchingPurchase?.Cost ?? 0,
+                    Profit = saleTrend.Revenue - (matchingPurchase?.Cost ?? 0),
+                    OrdersCount = saleTrend.OrdersCount
+                });
+            }
+            
+            return result;
         }
     }
 }

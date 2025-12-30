@@ -128,35 +128,33 @@ namespace CSproject.UI.Forms
             // 
             // btnExportDashboard
             // 
-            this.btnExportDashboard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnExportDashboard.Location = new System.Drawing.Point(930, 10);
+            this.btnExportDashboard.Location = new System.Drawing.Point(1067, 12);
             this.btnExportDashboard.Name = "btnExportDashboard";
-            this.btnExportDashboard.Size = new System.Drawing.Size(80, 30);
-            this.btnExportDashboard.TabIndex = 4;
-            this.btnExportDashboard.Text = "导出报表";
+            this.btnExportDashboard.Size = new System.Drawing.Size(75, 23);
+            this.btnExportDashboard.TabIndex = 5;
+            this.btnExportDashboard.Text = "导出";
             this.btnExportDashboard.UseVisualStyleBackColor = true;
-            this.btnExportDashboard.Click += new System.EventHandler(this.BtnExportDashboardClick);
+            this.btnExportDashboard.Click += new System.EventHandler(this.BtnExportDashboard_Click);
             // 
             // btnRefresh
             // 
-            this.btnRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRefresh.Location = new System.Drawing.Point(840, 10);
+            this.btnRefresh.Location = new System.Drawing.Point(986, 12);
             this.btnRefresh.Name = "btnRefresh";
-            this.btnRefresh.Size = new System.Drawing.Size(80, 30);
-            this.btnRefresh.TabIndex = 3;
+            this.btnRefresh.Size = new System.Drawing.Size(75, 23);
+            this.btnRefresh.TabIndex = 4;
             this.btnRefresh.Text = "刷新";
             this.btnRefresh.UseVisualStyleBackColor = true;
-            this.btnRefresh.Click += new System.EventHandler(this.BtnRefreshClick);
+            this.btnRefresh.Click += new System.EventHandler(this.BtnRefresh_Click);
             // 
             // btnSetDashboardRange
             // 
-            this.btnSetDashboardRange.Location = new System.Drawing.Point(320, 10);
+            this.btnSetDashboardRange.Location = new System.Drawing.Point(805, 12);
             this.btnSetDashboardRange.Name = "btnSetDashboardRange";
-            this.btnSetDashboardRange.Size = new System.Drawing.Size(80, 30);
-            this.btnSetDashboardRange.TabIndex = 2;
-            this.btnSetDashboardRange.Text = "应用";
+            this.btnSetDashboardRange.Size = new System.Drawing.Size(75, 23);
+            this.btnSetDashboardRange.TabIndex = 3;
+            this.btnSetDashboardRange.Text = "设置";
             this.btnSetDashboardRange.UseVisualStyleBackColor = true;
-            this.btnSetDashboardRange.Click += new System.EventHandler(this.BtnSetDashboardRangeClick);
+            this.btnSetDashboardRange.Click += new System.EventHandler(this.BtnSetDashboardRange_Click);
             // 
             // dtpDashboardRange
             // 
@@ -204,7 +202,7 @@ namespace CSproject.UI.Forms
             this.salesKpiCard.Controls.Add(this.label2);
             this.salesKpiCard.Location = new System.Drawing.Point(10, 10);
             this.salesKpiCard.Name = "salesKpiCard";
-            this.salesKpiCard.Size = new System.Drawing.Size(200, 110);
+            this.salesKpiCard.Size = new System.Drawing.Size(120, 110);
             this.salesKpiCard.TabIndex = 0;
             // 
             // label3
@@ -255,9 +253,9 @@ namespace CSproject.UI.Forms
             this.purchaseKpiCard.Controls.Add(this.lblPurchaseChange);
             this.purchaseKpiCard.Controls.Add(this.lblTotalPurchaseAmount);
             this.purchaseKpiCard.Controls.Add(this.label4);
-            this.purchaseKpiCard.Location = new System.Drawing.Point(220, 10);
+            this.purchaseKpiCard.Location = new System.Drawing.Point(140, 10);
             this.purchaseKpiCard.Name = "purchaseKpiCard";
-            this.purchaseKpiCard.Size = new System.Drawing.Size(200, 110);
+            this.purchaseKpiCard.Size = new System.Drawing.Size(120, 110);
             this.purchaseKpiCard.TabIndex = 1;
             // 
             // label5
@@ -308,9 +306,9 @@ namespace CSproject.UI.Forms
             this.profitKpiCard.Controls.Add(this.lblProfitChange);
             this.profitKpiCard.Controls.Add(this.lblTotalProfit);
             this.profitKpiCard.Controls.Add(this.label6);
-            this.profitKpiCard.Location = new System.Drawing.Point(430, 10);
+            this.profitKpiCard.Location = new System.Drawing.Point(270, 10);
             this.profitKpiCard.Name = "profitKpiCard";
-            this.profitKpiCard.Size = new System.Drawing.Size(200, 110);
+            this.profitKpiCard.Size = new System.Drawing.Size(120, 110);
             this.profitKpiCard.TabIndex = 2;
             // 
             // label7
@@ -360,9 +358,9 @@ namespace CSproject.UI.Forms
             this.inventoryKpiCard.Controls.Add(this.label9);
             this.inventoryKpiCard.Controls.Add(this.lblCurrentInventoryValue);
             this.inventoryKpiCard.Controls.Add(this.label8);
-            this.inventoryKpiCard.Location = new System.Drawing.Point(640, 10);
+            this.inventoryKpiCard.Location = new System.Drawing.Point(400, 10);
             this.inventoryKpiCard.Name = "inventoryKpiCard";
-            this.inventoryKpiCard.Size = new System.Drawing.Size(200, 110);
+            this.inventoryKpiCard.Size = new System.Drawing.Size(120, 110);
             this.inventoryKpiCard.TabIndex = 3;
             // 
             // label9
@@ -402,9 +400,9 @@ namespace CSproject.UI.Forms
             this.salesOrdersKpiCard.Controls.Add(this.label11);
             this.salesOrdersKpiCard.Controls.Add(this.lblSalesOrdersCount);
             this.salesOrdersKpiCard.Controls.Add(this.label10);
-            this.salesOrdersKpiCard.Location = new System.Drawing.Point(850, 10);
+            this.salesOrdersKpiCard.Location = new System.Drawing.Point(530, 10);
             this.salesOrdersKpiCard.Name = "salesOrdersKpiCard";
-            this.salesOrdersKpiCard.Size = new System.Drawing.Size(150, 110);
+            this.salesOrdersKpiCard.Size = new System.Drawing.Size(120, 110);
             this.salesOrdersKpiCard.TabIndex = 4;
             // 
             // label11
@@ -444,9 +442,9 @@ namespace CSproject.UI.Forms
             this.purchaseOrdersKpiCard.Controls.Add(this.label13);
             this.purchaseOrdersKpiCard.Controls.Add(this.lblPurchaseOrdersCount);
             this.purchaseOrdersKpiCard.Controls.Add(this.label12);
-            this.purchaseOrdersKpiCard.Location = new System.Drawing.Point(1010, 10);
+            this.purchaseOrdersKpiCard.Location = new System.Drawing.Point(660, 10);
             this.purchaseOrdersKpiCard.Name = "purchaseOrdersKpiCard";
-            this.purchaseOrdersKpiCard.Size = new System.Drawing.Size(150, 110);
+            this.purchaseOrdersKpiCard.Size = new System.Drawing.Size(120, 110);
             this.purchaseOrdersKpiCard.TabIndex = 5;
             // 
             // label13
@@ -486,9 +484,9 @@ namespace CSproject.UI.Forms
             this.lowStockKpiCard.Controls.Add(this.label15);
             this.lowStockKpiCard.Controls.Add(this.lblLowStockItemsCount);
             this.lowStockKpiCard.Controls.Add(this.label14);
-            this.lowStockKpiCard.Location = new System.Drawing.Point(1170, 10);
+            this.lowStockKpiCard.Location = new System.Drawing.Point(790, 10);
             this.lowStockKpiCard.Name = "lowStockKpiCard";
-            this.lowStockKpiCard.Size = new System.Drawing.Size(150, 110);
+            this.lowStockKpiCard.Size = new System.Drawing.Size(120, 110);
             this.lowStockKpiCard.TabIndex = 6;
             // 
             // label15
@@ -528,9 +526,9 @@ namespace CSproject.UI.Forms
             this.dailySalesKpiCard.Controls.Add(this.label17);
             this.dailySalesKpiCard.Controls.Add(this.lblAvgDailySales);
             this.dailySalesKpiCard.Controls.Add(this.label16);
-            this.dailySalesKpiCard.Location = new System.Drawing.Point(1330, 10);
+            this.dailySalesKpiCard.Location = new System.Drawing.Point(920, 10);
             this.dailySalesKpiCard.Name = "dailySalesKpiCard";
-            this.dailySalesKpiCard.Size = new System.Drawing.Size(150, 110);
+            this.dailySalesKpiCard.Size = new System.Drawing.Size(120, 110);
             this.dailySalesKpiCard.TabIndex = 7;
             // 
             // label17
@@ -712,38 +710,9 @@ namespace CSproject.UI.Forms
             this.Controls.Add(this.dashboardHeaderPanel);
             this.Name = "BusinessDashboardForm";
             this.Text = "经营看板";
-            this.Load += new System.EventHandler(this.BusinessDashboardFormLoad);
-            this.dashboardHeaderPanel.ResumeLayout(false);
-            this.dashboardHeaderPanel.PerformLayout();
-            this.kpiPanel.ResumeLayout(false);
-            this.salesKpiCard.ResumeLayout(false);
-            this.salesKpiCard.PerformLayout();
-            this.purchaseKpiCard.ResumeLayout(false);
-            this.purchaseKpiCard.PerformLayout();
-            this.profitKpiCard.ResumeLayout(false);
-            this.profitKpiCard.PerformLayout();
-            this.inventoryKpiCard.ResumeLayout(false);
-            this.inventoryKpiCard.PerformLayout();
-            this.salesOrdersKpiCard.ResumeLayout(false);
-            this.salesOrdersKpiCard.PerformLayout();
-            this.purchaseOrdersKpiCard.ResumeLayout(false);
-            this.purchaseOrdersKpiCard.PerformLayout();
-            this.lowStockKpiCard.ResumeLayout(false);
-            this.lowStockKpiCard.PerformLayout();
-            this.dailySalesKpiCard.ResumeLayout(false);
-            this.dailySalesKpiCard.PerformLayout();
-            this.contentPanel.ResumeLayout(false);
-            this.chartsPanel.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.chartSalesTrend)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chartInventoryStatus)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chartSalesByCategory)).EndInit();
-            this.dataPanel.ResumeLayout(false);
-            this.topProductsTab.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvTopSellingProducts)).EndInit();
-            this.recentTransactionsTab.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvRecentTransactions)).EndInit();
-            this.dataTabControl.ResumeLayout(false);
+            this.Load += new System.EventHandler(this.BusinessDashboardForm_Load);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

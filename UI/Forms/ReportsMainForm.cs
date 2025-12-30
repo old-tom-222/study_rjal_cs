@@ -44,28 +44,17 @@ namespace CSproject.UI.Forms
             // 清除现有内容
             panelReportContent.Controls.Clear();
             
-            // 创建销售报表占位表单
-            var placeholderForm = new Form
+            // 创建并显示实际的销售报表表单
+            var salesReportForm = new SalesReportForm
             {
                 TopLevel = false,
                 FormBorderStyle = FormBorderStyle.None,
-                Dock = DockStyle.Fill,
-                BackColor = System.Drawing.Color.White
+                Dock = DockStyle.Fill
             };
-            
-            // 添加标签说明
-            var label = new Label
-            {
-                Text = "销售报表功能开发中...",
-                Font = new System.Drawing.Font("Microsoft YaHei UI", 12F),
-                AutoSize = true,
-                Location = new System.Drawing.Point(20, 20)
-            };
-            placeholderForm.Controls.Add(label);
             
             // 添加到内容面板
-            panelReportContent.Controls.Add(placeholderForm);
-            placeholderForm.Show();
+            panelReportContent.Controls.Add(salesReportForm);
+            salesReportForm.Show();
             
             // 更新状态
             UpdateStatusLabel("销售报表模块已加载");
@@ -76,28 +65,17 @@ namespace CSproject.UI.Forms
             // 清除现有内容
             panelReportContent.Controls.Clear();
             
-            // 创建采购报表占位表单
-            var placeholderForm = new Form
+            // 创建采购报表表单
+            var purchaseReportForm = new PurchaseReportForm
             {
                 TopLevel = false,
                 FormBorderStyle = FormBorderStyle.None,
-                Dock = DockStyle.Fill,
-                BackColor = System.Drawing.Color.White
+                Dock = DockStyle.Fill
             };
-            
-            // 添加标签说明
-            var label = new Label
-            {
-                Text = "采购报表功能开发中...",
-                Font = new System.Drawing.Font("Microsoft YaHei UI", 12F),
-                AutoSize = true,
-                Location = new System.Drawing.Point(20, 20)
-            };
-            placeholderForm.Controls.Add(label);
             
             // 添加到内容面板
-            panelReportContent.Controls.Add(placeholderForm);
-            placeholderForm.Show();
+            panelReportContent.Controls.Add(purchaseReportForm);
+            purchaseReportForm.Show();
             
             // 更新状态
             UpdateStatusLabel("采购报表模块已加载");
@@ -108,28 +86,17 @@ namespace CSproject.UI.Forms
             // 清除现有内容
             panelReportContent.Controls.Clear();
             
-            // 创建经营看板占位表单
-            var placeholderForm = new Form
+            // 创建经营看板表单
+            var businessDashboardForm = new BusinessDashboardForm
             {
                 TopLevel = false,
                 FormBorderStyle = FormBorderStyle.None,
-                Dock = DockStyle.Fill,
-                BackColor = System.Drawing.Color.White
+                Dock = DockStyle.Fill
             };
-            
-            // 添加标签说明
-            var label = new Label
-            {
-                Text = "经营看板功能开发中...",
-                Font = new System.Drawing.Font("Microsoft YaHei UI", 12F),
-                AutoSize = true,
-                Location = new System.Drawing.Point(20, 20)
-            };
-            placeholderForm.Controls.Add(label);
             
             // 添加到内容面板
-            panelReportContent.Controls.Add(placeholderForm);
-            placeholderForm.Show();
+            panelReportContent.Controls.Add(businessDashboardForm);
+            businessDashboardForm.Show();
             
             // 更新状态
             UpdateStatusLabel("经营看板模块已加载");

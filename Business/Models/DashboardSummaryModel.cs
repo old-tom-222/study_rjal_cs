@@ -12,6 +12,8 @@ namespace CSproject.Business.Models
         public decimal AvgDailySales { get; set; }
         public int SalesOrdersCount { get; set; }
         public decimal SalesChangePercent { get; set; }
+        public int TotalItemsSold { get; set; }
+        public int ItemsSoldToday { get; set; }
 
         // 采购指标
         public decimal TotalPurchaseAmount { get; set; }

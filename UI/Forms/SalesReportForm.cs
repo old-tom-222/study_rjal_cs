@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.IO;
 using CSproject.Business.Services;
 using CSproject.Business.Models;
 
@@ -225,62 +226,13 @@ namespace CSproject.UI.Forms
             }
         }
 
-        private void BtnExportProductSalesClick(object sender, EventArgs e)
-        {
-            // Simple implementation for now
-            MessageBox.Show("正在导出产品销售报表...");
-        }
-
         private void BtnExportDailySalesClick(object sender, EventArgs e)
         {
             // Simple implementation for now
             MessageBox.Show("正在导出日销售报表...");
         }
 
-        private void BtnExportTrendReportClick(object sender, EventArgs e)
-        {
-            try
-            {
-                // 添加空引用检查
-                if (dtpProductSalesStart == null || dtpProductSalesEnd == null || dgvProductSales == null)
-                {
-                    MessageBox.Show("产品销售报表相关控件未正确初始化", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                
-                Cursor = Cursors.WaitCursor;
-                
-                // 获取日期范围
-                var startDate = dtpProductSalesStart.Value;
-                var endDate = dtpProductSalesEnd.Value;
-                
-                // 获取产品销售数据
-                var productSales = _salesReportService.GetProductSalesReport(startDate, endDate);
-                
-                // 计算销售占比
-                if (productSales.Count > 0)
-                {
-                    decimal totalRevenue = productSales.Sum(p => p.TotalRevenue);
-                    foreach (var item in productSales)
-                    {
-                        item.Percentage = totalRevenue > 0 ? (item.TotalRevenue / totalRevenue) * 100 : 0;
-                    }
-                }
-                
-                dgvProductSales.DataSource = productSales;
-                
-                // 更新统计信息
-                UpdateProductSalesStatistics(productSales);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"加载产品销售报表失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                Cursor = Cursors.Default;
-            }
-        }
+
 
         // 每日销售报表方法已移除
 
@@ -400,40 +352,130 @@ namespace CSproject.UI.Forms
                 lblAvgPeriodAmount.Text = avgPeriodAmount.ToString("F2");
         }
 
-        private void BtnExportProductSales_Click(object sender, EventArgs e)
+        private void BtnExportProductSalesClick(object sender, EventArgs e)
         {
             ExportToExcel(dgvProductSales, "产品销售报表");
         }
 
         // 每日销售报表导出方法已移除
 
-        private void BtnExportTrendReport_Click(object sender, EventArgs e)
+        private void BtnExportTrendReportClick(object sender, EventArgs e)
         {
             ExportToExcel(dgvSalesTrend, "销售趋势报表");
         }
 
         private void ExportToExcel(DataGridView dgv, string fileName)
         {
+            // 添加日志记录，帮助排查问题
+            System.Diagnostics.Debug.WriteLine(string.Format("开始导出报表: {0}, 数据行数: {1}", fileName, dgv.Rows.Count));
+            
+            // 检查数据网格是否有数据
+            if (dgv.Rows.Count == 0 || (dgv.Rows.Count == 1 && dgv.Rows[0].IsNewRow))
+            {
+                System.Diagnostics.Debug.WriteLine("没有数据可导出");
+                MessageBox.Show("没有数据可导出，请先加载数据", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+            
             try
             {
                 using (var saveFileDialog = new SaveFileDialog())
                 {
-                    saveFileDialog.Filter = "Excel文件 (*.xlsx)|*.xlsx|CSV文件 (*.csv)|*.csv";
+                    saveFileDialog.Filter = "CSV文件 (*.csv)|*.csv|Excel文件 (*.xlsx)|*.xlsx";
                     saveFileDialog.Title = "导出报表";
-                    saveFileDialog.FileName = $"{fileName}_{DateTime.Now:yyyyMMdd_HHmmss}";
+                    saveFileDialog.FileName = string.Format("{0}_{1:yyyyMMdd_HHmmss}", fileName, DateTime.Now);
                     
                     if (saveFileDialog.ShowDialog() == DialogResult.OK)
                     {
-                        // 这里可以添加实际的导出逻辑
-                        // 由于是框架搭建，暂时只显示消息
-                        MessageBox.Show($"报表已导出到: {saveFileDialog.FileName}", "导出成功", 
+                        string filePath = saveFileDialog.FileName;
+                        string fileExtension = Path.GetExtension(filePath).ToLower();
+                        
+                        if (fileExtension == ".csv")
+                        {
+                            ExportToCsv(dgv, filePath);
+                            // 验证文件是否真的创建成功
+                            if (File.Exists(filePath))
+                            {
+                                System.Diagnostics.Debug.WriteLine(string.Format("文件导出成功，路径: {0}, 文件大小: {1} 字节", filePath, new FileInfo(filePath).Length));
+                            }
+                            else
+                            {
+                                System.Diagnostics.Debug.WriteLine(string.Format("文件导出失败，路径: {0} 不存在", filePath));
+                            }
+                        }
+                        else
+                        {
+                            // 对于xlsx格式，这里也使用CSV格式导出作为临时解决方案
+                            // 在实际项目中可以使用EPPlus等库实现真正的Excel导出
+                            string csvFilePath = filePath.Replace(".xlsx", ".csv");
+                            ExportToCsv(dgv, csvFilePath);
+                            filePath = csvFilePath;
+                        }
+                        
+                        MessageBox.Show(string.Format("报表已成功导出到: {0}", filePath), "导出成功", 
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"导出报表失败: {ex.Message}", "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                System.Diagnostics.Debug.WriteLine(string.Format("导出异常: {0}\n{1}", ex.Message, ex.StackTrace));
+                // 显示更详细的错误信息
+                MessageBox.Show(string.Format("导出报表失败: {0}\n请检查是否有写入权限或文件路径是否正确", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ExportToCsv(DataGridView dgv, string filePath)
+        {
+            System.Diagnostics.Debug.WriteLine(string.Format("开始CSV导出，目标路径: {0}", filePath));
+            // 确保目录存在
+            string directory = Path.GetDirectoryName(filePath);
+            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("创建目录: {0}", directory));
+                Directory.CreateDirectory(directory);
+            }
+            try
+            {
+                // 创建或覆盖文件
+                using (StreamWriter writer = new StreamWriter(filePath, false, System.Text.Encoding.UTF8))
+                {
+                    // 写入列标题
+                    string headers = string.Join(",", dgv.Columns.Cast<DataGridViewColumn>()
+                        .Where(column => column.Visible)
+                        .Select(column => string.Format("\"{0}\"", column.HeaderText)));
+                    writer.WriteLine(headers);
+                    
+                    // 写入数据行
+                    foreach (DataGridViewRow row in dgv.Rows)
+                    {
+                        if (!row.IsNewRow)
+                        {
+                            string values = string.Join(",", dgv.Columns.Cast<DataGridViewColumn>()
+                                .Where(column => column.Visible)
+                                .Select(column => 
+                                {
+                                    // 检查单元格是否存在，避免NullReferenceException
+                                    DataGridViewCell cell = row.Cells[column.Index];
+                                    object cellValue = (cell != null) ? cell.Value : null;
+                                    string value = (cellValue != null) ? cellValue.ToString() : "";
+                                    // 处理包含逗号或引号的值
+                                    if (value.Contains(",") || value.Contains("\""))
+                                    {
+                                        value = value.Replace("\"", "\"\"");
+                                        return string.Format("\"{0}\"", value);
+                                    }
+                                    return value;
+                                }));
+                            writer.WriteLine(values);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(string.Format("CSV导出异常: {0}\n{1}", ex.Message, ex.StackTrace));
+                throw new Exception(string.Format("CSV导出失败: {0}\n目标路径: {1}", ex.Message, filePath), ex);
             }
         }
 

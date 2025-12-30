@@ -38,10 +38,10 @@ namespace CSproject.UI.Forms
             // 初始化热销产品数据网格
             dgvTopSellingProducts.AutoGenerateColumns = false;
             dgvTopSellingProducts.Columns.AddRange(
-                new DataGridViewTextBoxColumn { Name = "Rank", HeaderText = "排名", Width = 60 },
+                new DataGridViewTextBoxColumn { Name = "Rank", HeaderText = "排名", DataPropertyName = "Rank", Width = 60 },
                 new DataGridViewTextBoxColumn { Name = "ProductName", HeaderText = "产品名称", DataPropertyName = "ProductName", Width = 180 },
-                new DataGridViewTextBoxColumn { Name = "SalesQuantity", HeaderText = "销售数量", DataPropertyName = "Quantity", Width = 100 },
-                new DataGridViewTextBoxColumn { Name = "SalesAmount", HeaderText = "销售金额", DataPropertyName = "TotalAmount", Width = 100 }
+                new DataGridViewTextBoxColumn { Name = "SalesQuantity", HeaderText = "销售数量", DataPropertyName = "QuantitySold", Width = 100 },
+                new DataGridViewTextBoxColumn { Name = "SalesAmount", HeaderText = "销售金额", DataPropertyName = "TotalRevenue", Width = 100 }
             );
 
             // 初始化最近交易数据网格
@@ -61,6 +61,7 @@ namespace CSproject.UI.Forms
         {
             // 初始化销售趋势图表
             chartSalesTrend.Titles.Add("销售趋势");
+            chartSalesTrend.Series.Clear(); // 清除默认Series
             chartSalesTrend.Series.Add("销售额");
             chartSalesTrend.Series["销售额"].ChartType = SeriesChartType.Line;
             chartSalesTrend.Series["销售额"].Color = Color.Blue;
@@ -69,16 +70,62 @@ namespace CSproject.UI.Forms
             
             // 初始化库存状态图表
             chartInventoryStatus.Titles.Add("库存状态分布");
+            chartInventoryStatus.Series.Clear(); // 清除默认Series
             chartInventoryStatus.Series.Add("库存状态");
             chartInventoryStatus.Series["库存状态"].ChartType = SeriesChartType.Pie;
             chartInventoryStatus.Series["库存状态"].IsValueShownAsLabel = true;
             
             // 初始化销售类别分布图表
             chartSalesByCategory.Titles.Add("销售类别分布");
+            chartSalesByCategory.Series.Clear(); // 清除默认Series
             chartSalesByCategory.Series.Add("销售额");
             chartSalesByCategory.Series["销售额"].ChartType = SeriesChartType.Bar;
             chartSalesByCategory.ChartAreas[0].AxisX.Title = "类别";
-            chartSalesByCategory.ChartAreas[0].AxisY.Title = "销售额";
+            chartSalesByCategory.ChartAreas[0].AxisY.Title = "金额";
+        }
+
+        private void UpdateCharts(DateTime startDate, DateTime endDate)
+        {
+            // 清空现有数据
+            chartSalesTrend.Series["销售额"].Points.Clear();
+            chartInventoryStatus.Series["库存状态"].Points.Clear();
+            chartSalesByCategory.Series["销售额"].Points.Clear();
+            
+            try
+            {
+                // 获取销售趋势数据
+                var trendData = _dashboardService.GetBusinessTrendData(startDate, endDate);
+                
+                // 添加销售趋势数据
+                foreach (var item in trendData)
+                {
+                    // 格式化日期显示：从MonthName中提取年份
+                    int year = int.Parse(item.MonthName.Substring(0, 4)); // 假设MonthName格式为"2023年1月"
+                    var dateLabel = new DateTime(year, item.MonthNumber, 1).ToString("MM-dd");
+                    chartSalesTrend.Series["销售额"].Points.AddXY(dateLabel, item.Revenue);
+                }
+                
+                // 获取库存状态数据
+                var dashboardSummary = _dashboardService.GetDashboardSummary(startDate, endDate);
+                
+                // 添加库存状态数据
+                int totalItems = dashboardSummary.LowStockItemsCount + dashboardSummary.OutOfStockItemsCount + 100; // 假设总库存为100+低库存+零库存
+                chartInventoryStatus.Series["库存状态"].Points.AddXY("正常库存", totalItems);
+                chartInventoryStatus.Series["库存状态"].Points.AddXY("低库存", dashboardSummary.LowStockItemsCount);
+                chartInventoryStatus.Series["库存状态"].Points.AddXY("零库存", dashboardSummary.OutOfStockItemsCount);
+                
+                // 获取类别销售数据（暂时使用模拟数据，后续可以从数据库获取）
+                // 这里先使用模拟数据，因为目前没有从数据库获取类别销售数据的方法
+                chartSalesByCategory.Series["销售额"].Points.AddXY("电子产品", 150000);
+                chartSalesByCategory.Series["销售额"].Points.AddXY("办公用品", 80000);
+                chartSalesByCategory.Series["销售额"].Points.AddXY("家居用品", 120000);
+                chartSalesByCategory.Series["销售额"].Points.AddXY("食品饮料", 60000);
+                chartSalesByCategory.Series["销售额"].Points.AddXY("其他", 30000);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("更新图表数据失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void LoadDashboardData()
@@ -87,9 +134,9 @@ namespace CSproject.UI.Forms
             {
                 Cursor = Cursors.WaitCursor;
                 
-                // 获取日期范围
-                var endDate = DateTime.Now;
-                var startDate = dtpDashboardRange.Value;
+                // 获取日期范围 - 确保日期范围包含完整的时间
+                var endDate = DateTime.Now.Date.AddDays(1); // 结束日期设为明天开始，包含今天
+                var startDate = dtpDashboardRange.Value.Date; // 开始日期设为当天开始
                 
                 // 加载仪表板概要数据
                 LoadDashboardSummary(startDate, endDate);
@@ -115,100 +162,78 @@ namespace CSproject.UI.Forms
 
         private void LoadDashboardSummary(DateTime startDate, DateTime endDate)
         {
-            var summary = _dashboardService.GetDashboardSummary(startDate, endDate);
-            
-            // 更新关键指标
-            lblTotalSalesAmount.Text = summary.TotalSalesAmount.ToString("F2");
-            lblTotalPurchaseAmount.Text = summary.TotalPurchaseAmount.ToString("F2");
-            lblTotalProfit.Text = summary.TotalProfit.ToString("F2");
-            lblCurrentInventoryValue.Text = summary.CurrentInventoryValue.ToString("F2");
-            lblSalesOrdersCount.Text = summary.SalesOrdersCount.ToString();
-            lblPurchaseOrdersCount.Text = summary.PurchaseOrdersCount.ToString();
-            lblLowStockItemsCount.Text = summary.LowStockItemsCount.ToString();
-            lblAvgDailySales.Text = summary.AvgDailySales.ToString("F2");
-            
-            // 更新环比变化
-            UpdateChangeLabels(summary);
+            try
+            {
+                var summary = _dashboardService.GetDashboardSummary(startDate, endDate);
+                
+                // 更新关键指标
+                lblTotalSalesAmount.Text = summary.TotalSalesAmount.ToString("C2");
+                lblTotalPurchaseAmount.Text = summary.TotalPurchaseAmount.ToString("C2");
+                lblTotalProfit.Text = summary.TotalProfit.ToString("C2");
+                lblCurrentInventoryValue.Text = summary.CurrentInventoryValue.ToString("C2");
+                lblSalesOrdersCount.Text = summary.SalesOrdersCount.ToString();
+                lblPurchaseOrdersCount.Text = summary.PurchaseOrdersCount.ToString();
+                lblLowStockItemsCount.Text = summary.LowStockItemsCount.ToString();
+                // lblOutOfStockItemsCount.Text = summary.OutOfStockItemsCount.ToString(); // 移除对不存在的标签的引用
+                
+                // 更新变化百分比
+                UpdateChangeLabels(summary);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("加载仪表板概要数据失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void UpdateChangeLabels(DashboardSummaryModel summary)
         {
-            // 更新销售额环比变化
-            UpdateChangeLabel(lblSalesChange, summary.SalesChangePercent);
-            
-            // 更新采购额环比变化
-            UpdateChangeLabel(lblPurchaseChange, summary.PurchaseChangePercent);
-            
-            // 更新利润环比变化
-            UpdateChangeLabel(lblProfitChange, summary.ProfitChangePercent);
-        }
+            // 计算并更新销售额变化百分比
+            decimal salesChangePercent = summary.SalesChangePercent;
+            lblSalesChange.Text = string.Format("{0:0.00}%", salesChangePercent);
+            lblSalesChange.ForeColor = salesChangePercent >= 0 ? Color.Green : Color.Red;
 
-        private void UpdateChangeLabel(Label label, decimal changePercent)
-        {
-            if (changePercent > 0)
-            {
-                label.Text = string.Format("+{0:F1}%", changePercent);
-                label.ForeColor = Color.Green;
-            }
-            else if (changePercent < 0)
-            {
-                label.Text = string.Format("{0:F1}%", changePercent);
-                label.ForeColor = Color.Red;
-            }
-            else
-            {
-                label.Text = "0.0%";
-                label.ForeColor = Color.Gray;
-            }
+            // 计算并更新采购额变化百分比
+            decimal purchaseChangePercent = summary.PurchaseChangePercent;
+            lblPurchaseChange.Text = string.Format("{0:0.00}%", purchaseChangePercent);
+            lblPurchaseChange.ForeColor = purchaseChangePercent >= 0 ? Color.Green : Color.Red;
+
+            // 计算并更新利润变化百分比
+            decimal profitChangePercent = summary.ProfitChangePercent;
+            lblProfitChange.Text = string.Format("{0:0.00}%", profitChangePercent);
+            lblProfitChange.ForeColor = profitChangePercent >= 0 ? Color.Green : Color.Red;
         }
 
         private void LoadTopSellingProducts(DateTime startDate, DateTime endDate)
         {
-            var topProducts = _dashboardService.GetTopSellingProducts(startDate, endDate, 10);
-            
-            // 添加排名
-            for (int i = 0; i < topProducts.Count; i++)
+            try
             {
-                // 使用DataRowView或动态对象添加排名信息
-                // 这里为了简化，我们将使用对象集合
+                var topSellingProducts = _dashboardService.GetTopSellingProducts(startDate, endDate, 10);
+                
+                // 添加排名
+                for (int i = 0; i < topSellingProducts.Count; i++)
+                {
+                    topSellingProducts[i].Rank = i + 1;
+                }
+                
+                dgvTopSellingProducts.DataSource = topSellingProducts;
             }
-            
-            dgvTopSellingProducts.DataSource = topProducts;
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("加载热销产品数据失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void LoadRecentTransactions()
         {
-            var transactions = _dashboardService.GetRecentTransactions(20);
-            dgvRecentTransactions.DataSource = transactions;
-        }
-
-        private void UpdateCharts(DateTime startDate, DateTime endDate)
-        {
-            // 清空现有数据
-            chartSalesTrend.Series["销售额"].Points.Clear();
-            chartInventoryStatus.Series["库存状态"].Points.Clear();
-            chartSalesByCategory.Series["销售额"].Points.Clear();
-            
-            // 添加销售趋势数据（模拟数据）
-            // 实际应用中应该从服务层获取
-            for (int i = 14; i >= 0; i--)
+            try
             {
-                var date = DateTime.Now.AddDays(-i);
-                var amount = 5000 + new Random(date.Day).Next(0, 5000);
-                chartSalesTrend.Series["销售额"].Points.AddXY(date.ToString("MM-dd"), amount);
+                var recentTransactions = _dashboardService.GetRecentTransactions(10);
+                dgvRecentTransactions.DataSource = recentTransactions;
             }
-            
-            // 添加库存状态数据（模拟数据）
-            chartInventoryStatus.Series["库存状态"].Points.AddXY("正常库存", 85);
-            chartInventoryStatus.Series["库存状态"].Points.AddXY("低库存", 12);
-            chartInventoryStatus.Series["库存状态"].Points.AddXY("零库存", 3);
-            
-            // 添加类别销售数据（模拟数据）
-            chartSalesByCategory.Series["销售额"].Points.AddXY("电子产品", 150000);
-            chartSalesByCategory.Series["销售额"].Points.AddXY("办公用品", 80000);
-            chartSalesByCategory.Series["销售额"].Points.AddXY("家居用品", 120000);
-            chartSalesByCategory.Series["销售额"].Points.AddXY("食品饮料", 60000);
-            chartSalesByCategory.Series["销售额"].Points.AddXY("其他", 30000);
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("加载最近交易数据失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void BtnRefresh_Click(object sender, EventArgs e)
@@ -220,109 +245,32 @@ namespace CSproject.UI.Forms
         {
             try
             {
-                using (var saveFileDialog = new SaveFileDialog())
+                // 创建一个保存文件对话框
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                saveFileDialog.Filter = "Excel 文件 (*.xlsx)|*.xlsx|所有文件 (*.*)|*.*";
+                saveFileDialog.Title = "导出仪表板数据";
+                saveFileDialog.FileName = string.Format("经营看板_{0}.xlsx", DateTime.Now.ToString("yyyyMMdd_HHmmss"));
+                
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    saveFileDialog.Filter = "Excel文件 (*.xlsx)|*.xlsx|PDF文件 (*.pdf)|*.pdf";
-                    saveFileDialog.Title = "导出仪表板";
-                    saveFileDialog.FileName = string.Format("经营仪表板_{0:yyyyMMdd_HHmmss}", DateTime.Now);
-                    
-                    if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        // 这里可以添加实际的导出逻辑
-                        // 由于是框架搭建，暂时只显示消息
-                        MessageBox.Show(string.Format("仪表板已导出到: {0}", saveFileDialog.FileName), "导出成功", 
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
+                    // 这里可以实现导出逻辑
+                    MessageBox.Show("导出功能开发中...", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(string.Format("导出仪表板失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format("导出仪表板数据失败: {0}", ex.Message), "错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private void BtnSetDashboardRange_Click(object sender, EventArgs e)
         {
+            // 实现设置仪表板范围的逻辑
             LoadDashboardData();
         }
 
-       
-
-
-        /// <summary>
-        /// 导出仪表板数据按钮点击事件处理程序
-        /// </summary>
-        private void BtnExportDashboardClick(object sender, EventArgs e)
+        private void DtpDashboardRange_ValueChanged(object sender, EventArgs e)
         {
-            try
-            {
-                // 创建保存文件对话框
-                SaveFileDialog saveFileDialog = new SaveFileDialog();
-                saveFileDialog.Filter = "Excel文件 (*.xlsx)|*.xlsx|CSV文件 (*.csv)|*.csv|PDF文件 (*.pdf)|*.pdf";
-                saveFileDialog.Title = "导出仪表板数据";
-                saveFileDialog.FileName = string.Format("仪表板数据_{0}", DateTime.Now.ToString("yyyyMMdd_HHmmss"));
-
-                // 显示对话框并检查用户是否点击了确定按钮
-                if (saveFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    // 根据所选文件格式执行导出操作
-                    string fileExtension = Path.GetExtension(saveFileDialog.FileName);
-                    string message = string.Empty;
-
-                    switch (fileExtension.ToLower())
-                    {
-                        case ".xlsx":
-                            // 实现Excel导出逻辑
-                            message = "Excel文件导出成功";
-                            break;
-                        case ".csv":
-                            // 实现CSV导出逻辑
-                            message = "CSV文件导出成功";
-                            break;
-                        case ".pdf":
-                            // 实现PDF导出逻辑
-                            message = "PDF文件导出成功";
-                            break;
-                        default:
-                            message = "不支持的文件格式";
-                            break;
-                    }
-
-                    // 显示导出成功消息
-                    MessageBox.Show(message, "导出完成", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-            }
-            catch (Exception ex)
-            {
-                // 显示错误消息
-                MessageBox.Show(string.Format("导出过程中发生错误: {0}", ex.Message), "导出错误", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        /// <summary>
-        /// 加载仪表板数据
-        /// </summary>
-        private void BusinessDashboardFormLoad(object sender, EventArgs e)
-        {
-            // 初始化仪表板数据
-            LoadDashboardData();
-        }
-
-        /// <summary>
-        /// 刷新按钮点击事件处理程序
-        /// </summary>
-        private void BtnRefreshClick(object sender, EventArgs e)
-        {
-            // 重新加载仪表板数据
-            LoadDashboardData();
-        }
-
-        /// <summary>
-        /// 设置仪表板时间范围按钮点击事件处理程序
-        /// </summary>
-        private void BtnSetDashboardRangeClick(object sender, EventArgs e)
-        {
-            // 应用选定的时间范围并重新加载数据
             LoadDashboardData();
         }
     }
